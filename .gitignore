@@ -1,7 +1,7 @@
 .idea
 
-be/node_modules
-be/dist
+be/config/.env
+be/docs
 
 fe/node_modules
 fe/.vscode
