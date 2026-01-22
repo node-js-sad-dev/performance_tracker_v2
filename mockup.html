@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>SimTrack - Performance Tracker</title>
+        <link rel="stylesheet" href="style.css" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                /* Color Palette - Dark Gaming Theme */
+                --bg-dark: #121212;
+                --bg-panel: #1e1e1e;
+                --bg-hover: #2c2c2c;
+
+                --text-main: #e0e0e0;
+                --text-muted: #a0a0a0;
+
+                --accent: #00e5ff; /* Cyan Accent */
+                --accent-hover: #00b8cc;
+                --danger: #ff4444;
+                --success: #00c851;
+
+                --border: #333333;
+
+                --font-ui: "Inter", sans-serif;
+                --font-mono: "JetBrains Mono", monospace;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background-color: var(--bg-dark);
+                color: var(--text-main);
+                font-family: var(--font-ui);
+                height: 100vh;
+                overflow: hidden; /* Prevent body scroll, let containers scroll */
+            }
+
+            /* --- LAYOUT GRID --- */
+            .app-container {
+                display: grid;
+                grid-template-columns: 250px 1fr; /* Sidebar | Content */
+                height: 100vh;
+            }
+
+            /* --- SIDEBAR --- */
+            .sidebar {
+                background-color: var(--bg-panel);
+                border-right: 1px solid var(--border);
+                display: flex;
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+
+            .brand h2 {
+                font-size: 1.5rem;
+                margin-bottom: 3rem;
+                letter-spacing: -0.5px;
+            }
+            .brand .accent {
+                color: var(--accent);
+            }
+
+            .nav-menu {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .nav-item {
+                display: flex;
+                align-items: center;
+                padding: 0.75rem 1rem;
+                text-decoration: none;
+                color: var(--text-muted);
+                border-radius: 8px;
+                transition: all 0.2s ease;
+                font-weight: 600;
+            }
+
+            .nav-item:hover {
+                background-color: var(--bg-hover);
+                color: var(--text-main);
+            }
+            .nav-item.active {
+                background-color: rgba(0, 229, 255, 0.1);
+                color: var(--accent);
+                border-left: 3px solid var(--accent);
+            }
+
+            .nav-item .icon {
+                margin-right: 12px;
+                width: 20px;
+                text-align: center;
+            }
+
+            .user-profile {
+                border-top: 1px solid var(--border);
+                padding-top: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .avatar {
+                width: 32px;
+                height: 32px;
+                background: var(--accent);
+                color: var(--bg-dark);
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                font-weight: bold;
+            }
+
+            /* --- MAIN CONTENT --- */
+            .main-content {
+                padding: 2rem;
+                overflow-y: auto;
+                background-color: var(--bg-dark);
+            }
+
+            .top-bar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 2rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1.2rem;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 0.9rem;
+                transition: opacity 0.2s;
+            }
+            .btn-primary {
+                background: var(--accent);
+                color: var(--bg-dark);
+            }
+            .btn-primary:hover {
+                background: var(--accent-hover);
+            }
+            .btn-secondary {
+                background: var(--bg-hover);
+                color: var(--text-main);
+            }
+
+            /* --- DATA TABLE --- */
+            .data-table-container {
+                background: var(--bg-panel);
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                overflow: hidden;
+                margin-bottom: 1rem;
+            }
+
+            .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                text-align: left;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 1rem 1.5rem;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .data-table th {
+                background-color: rgba(255, 255, 255, 0.03);
+                color: var(--text-muted);
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .data-table tbody tr:hover {
+                background-color: var(--bg-hover);
+            }
+
+            .data-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            /* Table Specific Typography */
+            .mono {
+                font-family: var(--font-mono);
+                font-size: 0.9rem;
+            }
+            .time-highlight {
+                color: var(--accent);
+                font-weight: bold;
+            }
+            .text-right {
+                text-align: right;
+            }
+
+            /* Status Badges */
+            .badge {
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 0.75rem;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+            .badge.success {
+                background: rgba(0, 200, 81, 0.2);
+                color: var(--success);
+            }
+            .badge.danger {
+                background: rgba(255, 68, 68, 0.2);
+                color: var(--danger);
+            }
+
+            /* Actions */
+            .actions-cell {
+                text-align: right;
+                white-space: nowrap;
+            }
+            .icon-btn {
+                background: none;
+                border: none;
+                color: var(--text-muted);
+                cursor: pointer;
+                font-size: 1.1rem;
+                margin-left: 8px;
+                padding: 4px;
+                transition: color 0.2s;
+            }
+            .icon-btn:hover {
+                color: var(--text-main);
+            }
+            .icon-btn.edit:hover {
+                color: var(--accent);
+            }
+            .icon-btn.delete:hover {
+                color: var(--danger);
+            }
+
+            /* --- PAGINATION --- */
+            .pagination {
+                display: flex;
+                justify-content: flex-end;
+                gap: 5px;
+            }
+            .btn-page {
+                background: var(--bg-panel);
+                border: 1px solid var(--border);
+                color: var(--text-main);
+                width: 32px;
+                height: 32px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            .btn-page.active {
+                background: var(--accent);
+                color: var(--bg-dark);
+                border-color: var(--accent);
+            }
+            .btn-page:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            /* --- FORM STYLES (For Edit/Create Pages) --- */
+            .form-card {
+                background: var(--bg-panel);
+                padding: 2rem;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+                max-width: 600px;
+            }
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 0.5rem;
+                color: var(--text-muted);
+                font-size: 0.9rem;
+            }
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 0.8rem;
+                background: var(--bg-dark);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                color: var(--text-main);
+                font-family: var(--font-ui);
+            }
+            .form-group input:focus {
+                outline: none;
+                border-color: var(--accent);
+            }
+            .form-row {
+                display: flex;
+                gap: 2rem;
+                margin-bottom: 1.5rem;
+            }
+            .checkbox-container {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app-container">
+            <aside class="sidebar">
+                <div class="brand">
+                    <h2>Sim<span class="accent">Track</span></h2>
+                </div>
+
+                <nav class="nav-menu">
+                    <a href="#" class="nav-item active">
+                        <span class="icon">⏱</span> Laps
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="icon">🏎</span> Cars
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="icon">🏁</span> Tracks
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="icon">🎮</span> Games
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="icon">⚙️</span> Gear
+                    </a>
+                </nav>
+
+                <div class="user-profile">
+                    <div class="avatar">D</div>
+                    <span>Driver 1</span>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <header class="top-bar">
+                    <h1>Laps Telemetry</h1>
+                    <div class="actions">
+                        <button class="btn btn-primary">+ Log New Lap</button>
+                    </div>
+                </header>
+
+                <section class="content-view" id="view-list">
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Game</th>
+                                    <th>Car</th>
+                                    <th>Track</th>
+                                    <th>Time</th>
+                                    <th>Clear?</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="mono">2023-10-27</td>
+                                    <td>Assetto Corsa</td>
+                                    <td>Porsche 911 GT3</td>
+                                    <td>Nürburgring</td>
+                                    <td class="mono time-highlight">
+                                        1:54.302
+                                    </td>
+                                    <td>
+                                        <span class="badge success">Yes</span>
+                                    </td>
+                                    <td class="actions-cell">
+                                        <button
+                                            class="icon-btn edit"
+                                            title="Edit"
+                                        >
+                                            ✎
+                                        </button>
+                                        <button
+                                            class="icon-btn delete"
+                                            title="Delete"
+                                        >
+                                            🗑
+                                        </button>
+                                        <button
+                                            class="icon-btn detail"
+                                            title="Details"
+                                        >
+                                            👁
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="mono">2023-10-26</td>
+                                    <td>iRacing</td>
+                                    <td>Mazda MX-5</td>
+                                    <td>Laguna Seca</td>
+                                    <td class="mono">1:38.110</td>
+                                    <td>
+                                        <span class="badge danger">No</span>
+                                    </td>
+                                    <td class="actions-cell">
+                                        <button class="icon-btn edit">✎</button>
+                                        <button class="icon-btn delete">
+                                            🗑
+                                        </button>
+                                        <button class="icon-btn detail">
+                                            👁
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <button class="btn-page" disabled>&lt;</button>
+                        <button class="btn-page active">1</button>
+                        <button class="btn-page">2</button>
+                        <button class="btn-page">3</button>
+                        <button class="btn-page">&gt;</button>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </body>
+</html>
