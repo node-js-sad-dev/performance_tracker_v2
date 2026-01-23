@@ -19,6 +19,8 @@ func InitializeDatabases(cfg *config.Config) (*Registry, error) {
 		return nil, err
 	}
 
+	println("Initialized connections to all databases")
+
 	return &Registry{
 		MainDatabase: pgPool,
 	}, nil
