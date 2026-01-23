@@ -18,6 +18,13 @@ import (
 func main() {
 	cfg := config.Load()
 
+	// investigate what it is, and what are other modes
+	if cfg.AppEnv == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
+	}
+
 	app := gin.Default()
 
 	databaseConnections, err := db.InitializeDatabases(cfg)
