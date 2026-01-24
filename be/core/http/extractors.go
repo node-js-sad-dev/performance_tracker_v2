@@ -1,51 +1,102 @@
 package http
 
-import "github.com/gin-gonic/gin"
+import (
+	"encoding/json"
+	"fmt"
+	"strconv"
 
-func DecomposeRequestForGetListMethod(c *gin.Context) (*Sort, *Pagination, map[string][]string, error) {
-	var req QueryRequest
+	"github.com/gin-gonic/gin"
+)
 
-	if err := c.ShouldBindQuery(&req); err != nil {
-		return nil, nil, nil, err
-	}
-
-	// todo -> need better approach for defaults
-	// Default values if empty
-	if req.Page == 0 {
-		req.Page = 1
-	}
-
-	if req.Limit == 0 {
-		req.Limit = 10
-	}
-
-	filters := make(map[string][]string)
-	rawQuery := c.Request.URL.Query()
-
-	reserved := map[string]bool{
-		"page":      true,
-		"limit":     true,
-		"sortBy":    true,
-		"sortOrder": true,
-	}
-
-	for key, values := range rawQuery {
-		if !reserved[key] && len(values) > 0 {
-			filters[key] = values
+func GetBody[T any]() ParamFunc {
+	return func(c *gin.Context) (interface{}, error) {
+		var body T
+		if err := c.ShouldBindJSON(&body); err != nil {
+			return nil, fmt.Errorf("invalid JSON body: %w", err)
 		}
+		return &body, nil
+	}
+}
+
+func GetQuery[T any]() ParamFunc {
+	return func(c *gin.Context) (interface{}, error) {
+		query := make(map[string]string)
+
+		for key, values := range c.Request.URL.Query() {
+			if len(values) > 0 {
+				query[key] = values[0]
+			}
+		}
+
+		jsonData, err := json.Marshal(query)
+		if err != nil {
+			return nil, err
+		}
+
+		var p T
+		if err := json.Unmarshal(jsonData, &p); err != nil {
+			return nil, err
+		}
+
+		return p, nil
+	}
+}
+
+func GetParams[T any]() ParamFunc {
+	return func(c *gin.Context) (interface{}, error) {
+		params := make(map[string]string)
+
+		for _, param := range c.Params {
+			params[param.Key] = param.Value
+		}
+
+		jsonData, err := json.Marshal(params)
+		if err != nil {
+			return nil, err
+		}
+
+		var result T
+		if err := json.Unmarshal(jsonData, &result); err != nil {
+			return nil, err
+		}
+
+		return result, nil
+	}
+}
+
+func GetIdFromRequest(context *gin.Context) (int, error) {
+	id, err := strconv.Atoi(context.Param("id"))
+
+	if err != nil {
+		return 0, err
 	}
 
-	return &req.Sort, &req.Pagination, filters, nil
+	return id, nil
 }
 
-func DecomposeRequestForGetOneMethod(c *gin.Context) string {
-	id := c.Param("id")
+func GetRequestPagination(context *gin.Context) *Pagination {
+	page, err := strconv.Atoi(context.DefaultQuery("page", "1"))
+	if err != nil {
+		page = 1
+	}
 
-	return id
+	limit, err := strconv.Atoi(context.DefaultQuery("limit", "10"))
+	if err != nil {
+		limit = 10
+	}
+
+	return &Pagination{
+		Page:  page,
+		Limit: limit,
+	}
 }
 
-//func DecomposeRequestForCreateMethod(c *gin.Context, obj interface{}) error {
-//	if err := c.ShouldBindJSON(obj); err != nil {
-//
-//	}
-//}
+func GetRequestSort(context *gin.Context) *Sort {
+	sortBy := context.DefaultQuery("sortBy", "id")
+	sortOrder := context.DefaultQuery("sortOrder", "asc")
+
+	return &Sort{
+		SortBy:    sortBy,
+		SortOrder: sortOrder,
+	}
+}

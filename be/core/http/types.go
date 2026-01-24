@@ -1,16 +1,35 @@
 package http
 
+import (
+	"github.com/gin-gonic/gin"
+)
+
 type Pagination struct {
-	Page  int `form:"page" json:"page"`
-	Limit int `form:"limit" json:"limit"`
+	Page  int `json:"page"`
+	Limit int `json:"limit"`
 }
 
 type Sort struct {
-	SortBy    string `form:"sortBy" json:"sortBy"`
-	SortOrder string `form:"sortOrder" json:"sortOrder"`
+	SortBy    string `json:"sortBy"`
+	SortOrder string `json:"sortOrder"`
 }
 
-type QueryRequest struct {
-	Pagination
-	Sort
+type SuccessOperationResponse struct {
+	Message string `json:"message" default:"Operation completed successfully"`
 }
+
+type Cookies struct {
+	Access  string
+	Refresh string
+}
+
+type ActionFuncResponse struct {
+	Status  int
+	Data    interface{}
+	Error   error
+	Cookies *Cookies
+}
+
+type ActionFunc func(params ...interface{}) *ActionFuncResponse
+
+type ParamFunc func(*gin.Context) (interface{}, error)
