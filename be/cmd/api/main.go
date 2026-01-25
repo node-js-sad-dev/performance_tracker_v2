@@ -18,7 +18,6 @@ import (
 func main() {
 	cfg := config.Load()
 
-	// investigate what it is, and what are other modes
 	if cfg.AppEnv == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
@@ -32,15 +31,21 @@ func main() {
 		log.Fatalf("failed to initialize databases: %v", err)
 	}
 
+	println("Databases initialized successfully")
+
 	defer databaseConnections.Close()
 
 	app.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	modules.RootRouter(app)
 
+	println("Initialized routers successfully")
+
 	runErr := app.Run(cfg.GetServerAddr())
 
 	if runErr != nil {
 		panic(runErr)
 	}
+
+	println("Server running on " + cfg.GetServerAddr())
 }

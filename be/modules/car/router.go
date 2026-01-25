@@ -7,6 +7,6 @@ import (
 func Router(router *gin.RouterGroup) {
 	carGroup := router.Group("/car")
 	{
-		//carGroup.GET("/", http.Handler(GetList))
+		carGroup.GET("/", GetList)
 	}
 }
