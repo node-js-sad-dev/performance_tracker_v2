@@ -41,11 +41,13 @@ func main() {
 
 	println("Initialized routers successfully")
 
-	runErr := app.Run(cfg.GetServerAddr())
+	serverAddress := cfg.GetServerAddr()
+
+	runErr := app.Run(serverAddress)
 
 	if runErr != nil {
 		panic(runErr)
 	}
 
-	println("Server running on " + cfg.GetServerAddr())
+	println("Server running on " + serverAddress)
 }
