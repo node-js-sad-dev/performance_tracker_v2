@@ -5,6 +5,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+type FilterRule struct {
+	DBColumn string
+	Operator string
+	IsFuzzy  bool
+}
+
 type Pagination struct {
 	Page  int `json:"page"`
 	Limit int `json:"limit"`
@@ -15,10 +21,19 @@ type Sort struct {
 	SortOrder string `json:"sortOrder"`
 }
 
-type FilterRule struct {
-	DBColumn string
-	Operator string
-	IsFuzzy  bool
+type ExtractorResult[
+	Body any,
+	Query any,
+	Params any,
+	Headers map[string]string,
+] struct {
+	Params      *Params
+	Pagination  *Pagination
+	Sort        *Sort
+	QueryParams *Query
+	Body        *Body
+	Headers     *Headers
+	// @todo -> for projects with auth module add user here too
 }
 
 type GetEntityListPayload struct {
