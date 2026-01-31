@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func RootRouter(config *config.Config, app *gin.Engine, pool *pgxpool.Pool) {
+func RootRouter(config *config.Config, pool *pgxpool.Pool, app *gin.Engine) {
 	rootRouterGroup := app.Group("/api/v1")
 
 	// call global middlewares here before routers

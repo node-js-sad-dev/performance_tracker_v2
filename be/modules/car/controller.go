@@ -21,7 +21,7 @@ type Controller struct {
 //	@Param			sortBy		query		string	false	"Sort by"
 //	@Param			sortOrder	query		string	false	"Sort order"
 //	@Success		200			{object}	GetCarsResponse
-//	@Router			/task [get]
+//	@Router			/car [get]
 func (controller *Controller) GetList(extraction *core.ExtractorResult[any, any, any]) *core.ActionFuncResponse {
 	return core.SuccessResponse("Cars fetched successfully")
 }

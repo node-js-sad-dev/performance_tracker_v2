@@ -4,6 +4,7 @@ import (
 	"log"
 	"performance_tracker_v2_be/config"
 	"performance_tracker_v2_be/db"
+	"performance_tracker_v2_be/docs"
 	"performance_tracker_v2_be/modules"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,6 @@ import (
 // @version		1.0
 // @description	Performance Tracker, advanced version. Pet project
 // @BasePath		/api/v1
-// @Host			localhost:8080
 func main() {
 	cfg := config.Load()
 
@@ -36,9 +36,11 @@ func main() {
 
 	defer databaseConnections.Close()
 
+	docs.SwaggerInfo.Host = cfg.HOST
+
 	app.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	modules.RootRouter(cfg, app, databaseConnections.MainDatabase)
+	modules.RootRouter(cfg, databaseConnections.MainDatabase, app)
 
 	println("Initialized routers successfully")
 
