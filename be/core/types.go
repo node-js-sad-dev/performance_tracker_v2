@@ -1,9 +1,9 @@
 package core
 
 import (
+	"context"
 	"performance_tracker_v2_be/config"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -36,12 +36,12 @@ type ExtractorResult[
 	Headers     *map[string]string
 	Pool        *pgxpool.Pool
 	Config      *config.Config
-	//	@todo	-> for projects with auth module add user here too
+	Context     context.Context
 }
 
 type GetEntityListPayload struct {
 	Pool         *pgxpool.Pool
-	Context      *gin.Context
+	Context      context.Context
 	TableName    string
 	Pagination   *Pagination
 	Sort         *Sort
@@ -50,9 +50,16 @@ type GetEntityListPayload struct {
 	SelectFields []string
 }
 
+type GetEntityCountPayload struct {
+	Pool        *pgxpool.Pool
+	Context     context.Context
+	TableName   string
+	Filters     map[string][]string
+	FilterRules map[string]FilterRule
+}
+
 type ActionFuncResponse struct {
 	Status int
 	Data   interface{}
 	Error  error
-	//Cookies *Cookies
 }

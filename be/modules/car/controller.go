@@ -22,6 +22,19 @@ type Controller struct {
 //	@Param			sortOrder	query		string	false	"Sort order"
 //	@Success		200			{object}	GetCarsResponse
 //	@Router			/car [get]
-func (controller *Controller) GetList(extraction *core.ExtractorResult[any, any, any]) *core.ActionFuncResponse {
-	return core.SuccessResponse("Cars fetched successfully")
+func (controller *Controller) GetList(extraction *core.ExtractorResult[any, GetCarsFilter, any]) *core.ActionFuncResponse {
+	cars, carsError := controller.Service.GetAllCars(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
+	if carsError != nil {
+		return core.DbErrorResponse(carsError)
+	}
+
+	totalCount, countError := controller.Service.GetTotalCarsCount(extraction.Context, extraction.QueryParams)
+	if countError != nil {
+		return core.DbErrorResponse(countError)
+	}
+
+	return core.SuccessResponse(GetCarsResponse{
+		Cars:       cars,
+		TotalCount: int(totalCount),
+	})
 }

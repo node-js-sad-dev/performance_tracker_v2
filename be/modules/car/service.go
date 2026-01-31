@@ -1,10 +1,11 @@
 package car
 
 import (
+	"context"
 	"performance_tracker_v2_be/core"
 	"performance_tracker_v2_be/db/main-db/models"
+	"performance_tracker_v2_be/helpers"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -12,27 +13,28 @@ type Service struct {
 	Pool *pgxpool.Pool
 }
 
-func (service *Service) GetAllCars(
-	context *gin.Context,
-	pagination *core.Pagination,
-	sort *core.Sort,
-	filters map[string][]string,
-) ([]models.Car, error) {
-
-	filterRules := map[string]core.FilterRule{
+func (service *Service) GetFilters() map[string]core.FilterRule {
+	return map[string]core.FilterRule{
 		"name": {DBColumn: "name", Operator: "ILIKE", IsFuzzy: true},
 		"id":   {DBColumn: "id", Operator: "=", IsFuzzy: false},
 	}
+}
 
+func (service *Service) GetAllCars(
+	context context.Context,
+	pagination *core.Pagination,
+	sort *core.Sort,
+	filters *GetCarsFilter,
+) ([]models.Car, error) {
 	rows, err := core.GetEntityList(core.GetEntityListPayload{
 		Pool:         service.Pool,
 		Context:      context,
 		TableName:    "cars",
 		Pagination:   pagination,
 		Sort:         sort,
-		Filters:      filters,
-		FilterRules:  filterRules,
-		SelectFields: []string{"id", "name", "image", "description", "createdAt"},
+		Filters:      helpers.StructToQueryFilters(filters),
+		FilterRules:  service.GetFilters(),
+		SelectFields: []string{"id", "name", "image", "description", "created_at"},
 	})
 
 	if err != nil {
@@ -53,10 +55,24 @@ func (service *Service) GetAllCars(
 	return result, nil
 }
 
-func (service *Service) GetCarByID(id string) {}
+func (service *Service) GetTotalCarsCount(context context.Context, filters *GetCarsFilter) (int64, error) {
+	return core.GetEntityCount(core.GetEntityCountPayload{
+		Pool:        service.Pool,
+		Context:     context,
+		TableName:   "cars",
+		Filters:     helpers.StructToQueryFilters(filters),
+		FilterRules: service.GetFilters(),
+	})
+}
 
-func (service *Service) CreateCar(name, image, description string) {}
+func (service *Service) GetCarByID(id string) {
+}
 
-func (service *Service) UpdateCar(id, name, image, description string) {}
+func (service *Service) CreateCar(name, image, description string) {
+}
 
-func (service *Service) DeleteCar(id string) {}
+func (service *Service) UpdateCar(id, name, image, description string) {
+}
+
+func (service *Service) DeleteCar(id string) {
+}

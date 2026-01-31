@@ -7,18 +7,17 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func GetEntityList(payload GetEntityListPayload) (pgx.Rows, error) {
-	var queryBuilder strings.Builder
-	queryBuilder.WriteString(`SELECT `)
-	queryBuilder.WriteString(strings.Join(payload.SelectFields, ", "))
-	queryBuilder.WriteString(` FROM ` + payload.TableName)
-
-	var args []interface{}
+func ApplyFilters(
+	queryBuilder *strings.Builder,
+	filters map[string][]string,
+	filterRules map[string]FilterRule,
+	args *[]interface{},
+	argCounter *int,
+) {
 	var whereClauses []string
-	argCounter := 1
 
-	for key, values := range payload.Filters {
-		rule, isAllowed := payload.FilterRules[key]
+	for key, values := range filters {
+		rule, isAllowed := filterRules[key]
 
 		if !isAllowed || len(values) == 0 {
 			continue
@@ -31,16 +30,17 @@ func GetEntityList(payload GetEntityListPayload) (pgx.Rows, error) {
 			}
 
 			var dbValue string
-
 			if rule.IsFuzzy {
 				dbValue = "%" + val + "%"
 			} else {
 				dbValue = val
 			}
 
-			orConditions = append(orConditions, fmt.Sprintf("%s %s $%d", rule.DBColumn, rule.Operator, argCounter))
-			args = append(args, dbValue)
-			argCounter++
+			orConditions = append(orConditions, fmt.Sprintf("%s %s $%d", rule.DBColumn, rule.Operator, *argCounter))
+
+			*args = append(*args, dbValue)
+
+			*argCounter++
 		}
 
 		if len(orConditions) > 0 {
@@ -51,6 +51,18 @@ func GetEntityList(payload GetEntityListPayload) (pgx.Rows, error) {
 	if len(whereClauses) > 0 {
 		queryBuilder.WriteString(" WHERE " + strings.Join(whereClauses, " AND "))
 	}
+}
+
+func GetEntityList(payload GetEntityListPayload) (pgx.Rows, error) {
+	var queryBuilder strings.Builder
+	queryBuilder.WriteString(`SELECT `)
+	queryBuilder.WriteString(strings.Join(payload.SelectFields, ", "))
+	queryBuilder.WriteString(` FROM ` + payload.TableName)
+
+	var args []interface{}
+	argCounter := 1
+
+	ApplyFilters(&queryBuilder, payload.Filters, payload.FilterRules, &args, &argCounter)
 
 	var sortOrder string
 	if strings.ToUpper(payload.Sort.SortOrder) == "ASC" {
@@ -65,4 +77,24 @@ func GetEntityList(payload GetEntityListPayload) (pgx.Rows, error) {
 	args = append(args, payload.Pagination.Limit, (payload.Pagination.Page-1)*payload.Pagination.Limit)
 
 	return payload.Pool.Query(payload.Context, queryBuilder.String(), args...)
+}
+
+func GetEntityCount(payload GetEntityCountPayload) (int64, error) {
+	var queryBuilder strings.Builder
+	queryBuilder.WriteString(`SELECT COUNT(*) as count FROM ` + payload.TableName)
+
+	var args []interface{}
+	argCounter := 1
+
+	ApplyFilters(&queryBuilder, payload.Filters, payload.FilterRules, &args, &argCounter)
+
+	row := payload.Pool.QueryRow(payload.Context, queryBuilder.String(), args...)
+
+	var count int64
+
+	if err := row.Scan(&count); err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }

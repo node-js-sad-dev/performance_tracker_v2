@@ -51,7 +51,6 @@ func Extract[
 
 	if c.Request.ContentLength > 0 {
 		if err := c.ShouldBindJSON(body); err != nil {
-			// This returns an error if JSON is malformed OR if validation tags fail
 			return nil, err
 		}
 	}
@@ -64,5 +63,7 @@ func Extract[
 		Body:        body,
 		Headers:     &headers,
 		Config:      config,
+		Pool:        pool,
+		Context:     c.Request.Context(),
 	}, nil
 }

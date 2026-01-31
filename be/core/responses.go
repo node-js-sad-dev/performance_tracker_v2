@@ -39,6 +39,7 @@ func DbErrorResponse(err error) *ActionFuncResponse {
 			Error:  errors.New("record not found"),
 		}
 	default:
+		println(err.Error())
 		return &ActionFuncResponse{
 			Status: 500,
 			Data:   nil,
