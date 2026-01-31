@@ -6,7 +6,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// Controller GetTasks @Summary Get cars
+type Controller struct {
+	Pool    *pgxpool.Pool
+	Service *Service
+}
+
+// GetList @Summary Get cars
 //
 //	@Description	Get all cars
 //	@Tags			Car
@@ -17,11 +22,6 @@ import (
 //	@Param			sortOrder	query		string	false	"Sort order"
 //	@Success		200			{object}	GetCarsResponse
 //	@Router			/task [get]
-type Controller struct {
-	Pool    *pgxpool.Pool
-	Service *Service
-}
-
 func (controller *Controller) GetList(extraction *core.ExtractorResult[any, any, any]) *core.ActionFuncResponse {
 	return core.SuccessResponse("Cars fetched successfully")
 }

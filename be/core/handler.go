@@ -1,13 +1,15 @@
 package core
 
 import (
+	"performance_tracker_v2_be/config"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func Handler[Body any, Query any, Params any](pool *pgxpool.Pool, actionFunc func(extraction *ExtractorResult[Body, Query, Params]) *ActionFuncResponse) gin.HandlerFunc {
+func Handler[Body any, Query any, Params any](config *config.Config, pool *pgxpool.Pool, actionFunc func(extraction *ExtractorResult[Body, Query, Params]) *ActionFuncResponse) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		extraction, extractionErr := Extract[Body, Query, Params](pool, c)
+		extraction, extractionErr := Extract[Body, Query, Params](config, pool, c)
 		if extractionErr != nil {
 			c.JSON(400, gin.H{
 				"success": false,

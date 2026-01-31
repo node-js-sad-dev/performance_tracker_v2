@@ -1,6 +1,7 @@
 package core
 
 import (
+	"performance_tracker_v2_be/config"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +12,7 @@ func Extract[
 	Body any,
 	Query any,
 	Params any,
-](pool *pgxpool.Pool, c *gin.Context) (*ExtractorResult[Body, Query, Params], error) {
+](config *config.Config, pool *pgxpool.Pool, c *gin.Context) (*ExtractorResult[Body, Query, Params], error) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
 		page = 1
@@ -62,5 +63,6 @@ func Extract[
 		QueryParams: queryParams,
 		Body:        body,
 		Headers:     &headers,
+		Config:      config,
 	}, nil
 }

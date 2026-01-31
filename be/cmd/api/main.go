@@ -12,9 +12,10 @@ import (
 )
 
 // @title			Performance Tracker V2 API
-// @version			1.0
-// @description		Performance Tracker, advanced version. Pet project
+// @version		1.0
+// @description	Performance Tracker, advanced version. Pet project
 // @BasePath		/api/v1
+// @Host			localhost:8080
 func main() {
 	cfg := config.Load()
 
@@ -37,7 +38,7 @@ func main() {
 
 	app.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	modules.RootRouter(app, databaseConnections.MainDatabase)
+	modules.RootRouter(cfg, app, databaseConnections.MainDatabase)
 
 	println("Initialized routers successfully")
 

@@ -1,6 +1,8 @@
 package core
 
 import (
+	"performance_tracker_v2_be/config"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -33,7 +35,8 @@ type ExtractorResult[
 	Body        *Body
 	Headers     *map[string]string
 	Pool        *pgxpool.Pool
-	// @todo -> for projects with auth module add user here too
+	Config      *config.Config
+	//	@todo	-> for projects with auth module add user here too
 }
 
 type GetEntityListPayload struct {
