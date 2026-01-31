@@ -9,11 +9,11 @@ import (
 )
 
 type Service struct {
-	Pool    *pgxpool.Pool
-	Context *gin.Context
+	Pool *pgxpool.Pool
 }
 
 func (service *Service) GetAllCars(
+	context *gin.Context,
 	pagination *core.Pagination,
 	sort *core.Sort,
 	filters map[string][]string,
@@ -26,7 +26,7 @@ func (service *Service) GetAllCars(
 
 	rows, err := core.GetEntityList(core.GetEntityListPayload{
 		Pool:         service.Pool,
-		Context:      service.Context,
+		Context:      context,
 		TableName:    "cars",
 		Pagination:   pagination,
 		Sort:         sort,

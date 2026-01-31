@@ -1,9 +1,27 @@
 package car
 
 import (
-	"github.com/gin-gonic/gin"
+	"performance_tracker_v2_be/core"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func GetList(c *gin.Context) {
+// Controller GetTasks @Summary Get cars
+//
+//	@Description	Get all cars
+//	@Tags			Car
+//	@Produce		json
+//	@Param			page		query		int		false	"Page"
+//	@Param			limit		query		int		false	"Limit"
+//	@Param			sortBy		query		string	false	"Sort by"
+//	@Param			sortOrder	query		string	false	"Sort order"
+//	@Success		200			{object}	GetCarsResponse
+//	@Router			/task [get]
+type Controller struct {
+	Pool    *pgxpool.Pool
+	Service *Service
+}
 
+func (controller *Controller) GetList(extraction *core.ExtractorResult[any, any, any]) *core.ActionFuncResponse {
+	return core.SuccessResponse("Cars fetched successfully")
 }

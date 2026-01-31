@@ -1,46 +1,48 @@
 package core
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"errors"
 )
 
-func SuccessResponse(c *gin.Context, data interface{}) {
-	c.JSON(200, gin.H{
-		"success": true,
-		"data":    data,
-	})
+func SuccessResponse(data interface{}) *ActionFuncResponse {
+	return &ActionFuncResponse{
+		Status: 200,
+		Data:   data,
+		Error:  nil,
+		//Cookies: nil,
+	}
 }
 
-func SuccessResponseWithCookies(c *gin.Context, data interface{}, accessCookie, refreshCookie string) {
-	setCookies(c, accessCookie, refreshCookie)
+//func SuccessResponseWithCookies(data interface{}, accessCookie, refreshCookie string) *ActionFuncResponse {
+//	return &ActionFuncResponse{
+//		Status:  200,
+//		Data:    data,
+//		Error:   nil,
+//		Cookies: &http.Cookies{Access: accessCookie, Refresh: refreshCookie},
+//	}
+//}
 
-	c.JSON(200, gin.H{
-		"success": true,
-		"data":    data,
-	})
+func CommonErrorResponse(status int, errorMessage string) *ActionFuncResponse {
+	return &ActionFuncResponse{
+		Status: status,
+		Data:   nil,
+		Error:  errors.New(errorMessage),
+	}
 }
 
-func CommonErrorResponse(c *gin.Context, status int, errorMessage string) {
-	c.JSON(status, gin.H{
-		"success": false,
-		"error":   errorMessage,
-	})
-}
-
-func DbErrorResponse(c *gin.Context, err error) {
-	var status int
-	var errorMessage string
-
+func DbErrorResponse(err error) *ActionFuncResponse {
 	switch err.Error() {
 	case "record not found":
-		status = http.StatusNotFound
-		errorMessage = "record not found"
+		return &ActionFuncResponse{
+			Status: 404,
+			Data:   nil,
+			Error:  errors.New("record not found"),
+		}
 	default:
-		status = http.StatusInternalServerError
-		errorMessage = "internal server error"
+		return &ActionFuncResponse{
+			Status: 500,
+			Data:   nil,
+			Error:  errors.New("internal server error"),
+		}
 	}
-
-	CommonErrorResponse(c, status, errorMessage)
 }

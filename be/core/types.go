@@ -25,14 +25,14 @@ type ExtractorResult[
 	Body any,
 	Query any,
 	Params any,
-	Headers map[string]string,
 ] struct {
 	Params      *Params
 	Pagination  *Pagination
 	Sort        *Sort
 	QueryParams *Query
 	Body        *Body
-	Headers     *Headers
+	Headers     *map[string]string
+	Pool        *pgxpool.Pool
 	// @todo -> for projects with auth module add user here too
 }
 
@@ -45,4 +45,11 @@ type GetEntityListPayload struct {
 	Filters      map[string][]string
 	FilterRules  map[string]FilterRule
 	SelectFields []string
+}
+
+type ActionFuncResponse struct {
+	Status int
+	Data   interface{}
+	Error  error
+	//Cookies *Cookies
 }

@@ -37,7 +37,7 @@ func main() {
 
 	app.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	modules.RootRouter(app)
+	modules.RootRouter(app, databaseConnections.MainDatabase)
 
 	println("Initialized routers successfully")
 

@@ -4,13 +4,14 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func Extract[
 	Body any,
 	Query any,
 	Params any,
-](c *gin.Context) (*ExtractorResult[Body, Query, Params, map[string]string], error) {
+](pool *pgxpool.Pool, c *gin.Context) (*ExtractorResult[Body, Query, Params], error) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
 		page = 1
@@ -46,13 +47,15 @@ func Extract[
 	}
 
 	body := new(Body)
+
 	if c.Request.ContentLength > 0 {
 		if err := c.ShouldBindJSON(body); err != nil {
+			// This returns an error if JSON is malformed OR if validation tags fail
 			return nil, err
 		}
 	}
 
-	return &ExtractorResult[Body, Query, Params, map[string]string]{
+	return &ExtractorResult[Body, Query, Params]{
 		Params:      params,
 		Pagination:  pagination,
 		Sort:        sort,
