@@ -9,18 +9,8 @@ func SuccessResponse(data interface{}) *ActionFuncResponse {
 		Status: 200,
 		Data:   data,
 		Error:  nil,
-		//Cookies: nil,
 	}
 }
-
-//func SuccessResponseWithCookies(data interface{}, accessCookie, refreshCookie string) *ActionFuncResponse {
-//	return &ActionFuncResponse{
-//		Status:  200,
-//		Data:    data,
-//		Error:   nil,
-//		Cookies: &http.Cookies{Access: accessCookie, Refresh: refreshCookie},
-//	}
-//}
 
 func CommonErrorResponse(status int, errorMessage string) *ActionFuncResponse {
 	return &ActionFuncResponse{

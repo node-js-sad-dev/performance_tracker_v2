@@ -63,3 +63,8 @@ type ActionFuncResponse struct {
 	Data   interface{}
 	Error  error
 }
+
+type SwaggerSuccessResponse[T any] struct {
+	Success bool `json:"success"`
+	Data    T    `json:"data"`
+}

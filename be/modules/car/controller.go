@@ -20,7 +20,7 @@ type Controller struct {
 //	@Param			limit		query		int		false	"Limit"
 //	@Param			sortBy		query		string	false	"Sort by"
 //	@Param			sortOrder	query		string	false	"Sort order"
-//	@Success		200			{object}	GetCarsResponse
+//	@Success		200			{object}	core.SwaggerSuccessResponse[GetCarsResponse]
 //	@Router			/car [get]
 func (controller *Controller) GetList(extraction *core.ExtractorResult[any, GetCarsFilter, any]) *core.ActionFuncResponse {
 	cars, carsError := controller.Service.GetAllCars(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
