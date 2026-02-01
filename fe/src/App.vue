@@ -11,3 +11,11 @@ import Main from './components/Main.vue'
     <Main></Main>
   </div>
 </template>
+
+<style>
+.app-container {
+  display: grid;
+  grid-template-columns: 250px 1fr; /* Sidebar | Content */
+  height: 100vh;
+}
+</style>

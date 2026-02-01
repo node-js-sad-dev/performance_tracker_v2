@@ -67,9 +67,3 @@ body {
     background: var(--bg-hover);
     color: var(--text-main);
 }
-
-.app-container {
-    display: grid;
-    grid-template-columns: 250px 1fr; /* Sidebar | Content */
-    height: 100vh;
-}
