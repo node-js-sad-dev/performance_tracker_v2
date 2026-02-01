@@ -38,3 +38,28 @@ func (controller *Controller) GetList(extraction *core.ExtractorResult[any, GetC
 		TotalCount: int(totalCount),
 	})
 }
+
+func (controller *Controller) Create(extraction *core.ExtractorResult[CreateCarRequest, any, any]) *core.ActionFuncResponse {
+	carID, createError := controller.Service.CreateCar(extraction.Context, extraction.Body)
+
+	if createError != nil {
+		return core.DbErrorResponse(createError)
+	}
+
+	car, getError := controller.Service.GetCarByID(extraction.Context, carID)
+	if getError != nil {
+		return core.DbErrorResponse(getError)
+	}
+
+	return core.SuccessResponse(car)
+}
+
+func (controller *Controller) GetByID(extraction *core.ExtractorResult[any, any, core.GetByIdParams]) *core.ActionFuncResponse {
+	car, getError := controller.Service.GetCarByID(extraction.Context, extraction.Params.ID)
+
+	if getError != nil {
+		return core.DbErrorResponse(getError)
+	}
+
+	return core.SuccessResponse(car)
+}

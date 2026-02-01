@@ -65,14 +65,39 @@ func (service *Service) GetTotalCarsCount(context context.Context, filters *GetC
 	})
 }
 
-func (service *Service) GetCarByID(id string) {
+func (service *Service) GetCarByID(context context.Context, id int) (*models.Car, error) {
+	car := service.Pool.QueryRow(context, `
+		SELECT id, name, image, description, created_at
+		FROM cars
+		WHERE id = $1
+	`, id)
+
+	var result models.Car
+
+	if err := car.Scan(&result.ID, &result.Name, &result.Image, &result.Description, &result.CreatedAt); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
 
-func (service *Service) CreateCar(name, image, description string) {
+func (service *Service) CreateCar(context context.Context, payload *CreateCarRequest) (int, error) {
+	result := service.Pool.QueryRow(context, `
+		INSERT INTO cars (name, image, description)
+		VALUES ($1, $2, $3) returning id
+	`, payload.Name, payload.Image, payload.Description)
+
+	var id int
+
+	if err := result.Scan(&id); err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
-func (service *Service) UpdateCar(id, name, image, description string) {
+func (service *Service) UpdateCar(context context.Context, id int, name string, image string, description string) {
 }
 
-func (service *Service) DeleteCar(id string) {
+func (service *Service) DeleteCar(context context.Context, id int) {
 }

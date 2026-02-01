@@ -68,3 +68,7 @@ type SwaggerSuccessResponse[T any] struct {
 	Success bool `json:"success"`
 	Data    T    `json:"data"`
 }
+
+type GetByIdParams struct {
+	ID int `uri:"id" binding:"required"`
+}

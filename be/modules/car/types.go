@@ -3,10 +3,16 @@ package car
 import "performance_tracker_v2_be/db/main-db/models"
 
 type GetCarsFilter struct {
-	Name []string
+	Name []string `form:"name"`
 }
 
 type GetCarsResponse struct {
 	Cars       []models.Car `json:"cars"`
 	TotalCount int          `json:"total_count"`
+}
+
+type CreateCarRequest struct {
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	Image       string `json:"image"`
 }
