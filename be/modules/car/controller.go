@@ -4,6 +4,8 @@ import (
 	"performance_tracker_v2_be/core"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	_ "performance_tracker_v2_be/db/main-db/models"
 )
 
 type Controller struct {
@@ -39,6 +41,15 @@ func (controller *Controller) GetList(extraction *core.ExtractorResult[any, GetC
 	})
 }
 
+// Create @Summary Create car
+//
+//	@Description	Create a new car
+//	@Tags			Car
+//	@Accept			json
+//	@Produce		json
+//	@Param			car	body		CreateCarRequest	true	"Car to create"
+//	@Success		200	{object}	core.SwaggerSuccessResponse[models.Car]
+//	@Router			/car [post]
 func (controller *Controller) Create(extraction *core.ExtractorResult[CreateCarRequest, any, any]) *core.ActionFuncResponse {
 	carID, createError := controller.Service.CreateCar(extraction.Context, extraction.Body)
 
@@ -54,6 +65,14 @@ func (controller *Controller) Create(extraction *core.ExtractorResult[CreateCarR
 	return core.SuccessResponse(car)
 }
 
+// GetByID @Summary Get car by ID
+//
+//	@Description	Get a car by its ID
+//	@Tags			Car
+//	@Produce		json
+//	@Param			id	path		string	true	"Car ID"
+//	@Success		200	{object}	core.SwaggerSuccessResponse[models.Car]
+//	@Router			/car/{id} [get]
 func (controller *Controller) GetByID(extraction *core.ExtractorResult[any, any, core.GetByIdParams]) *core.ActionFuncResponse {
 	car, getError := controller.Service.GetCarByID(extraction.Context, extraction.Params.ID)
 

@@ -1,7 +1,10 @@
-.PHONY: RUN_FE RUN_BE
+.PHONY: run_fe run_be migrate-new
 
-RUN_FE:
+migrate-new:
+	cd be && migrate create -ext sql -dir ./db/main-db/migrations -seq $(name)
+
+run_fe:
 	cd be && npm run dev
 
-RUN_BE:
+run_be:
 	cd be && swag init -g cmd/api/main.go --parseDependency --parseInternal && go run ./cmd/api

@@ -4,6 +4,7 @@ import (
 	"log"
 	"performance_tracker_v2_be/config"
 	"performance_tracker_v2_be/db"
+	main_db "performance_tracker_v2_be/db/main-db"
 	"performance_tracker_v2_be/docs"
 	"performance_tracker_v2_be/modules"
 
@@ -19,14 +20,6 @@ import (
 func main() {
 	cfg := config.Load()
 
-	if cfg.AppEnv == "production" {
-		gin.SetMode(gin.ReleaseMode)
-	} else {
-		gin.SetMode(gin.DebugMode)
-	}
-
-	app := gin.Default()
-
 	databaseConnections, err := db.InitializeDatabases(cfg)
 	if err != nil {
 		log.Fatalf("failed to initialize databases: %v", err)
@@ -36,7 +29,22 @@ func main() {
 
 	defer databaseConnections.Close()
 
+	if err := main_db.RunMigrations(databaseConnections.MainDatabase); err != nil {
+		log.Fatalf("Failed to run migrations: %v", err)
+	}
+
+	println("Database migrations ran successfully")
+
+	// swagger to set correct host, not hardcoded
 	docs.SwaggerInfo.Host = cfg.HOST
+
+	if cfg.AppEnv == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
+	}
+
+	app := gin.Default()
 
 	app.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
