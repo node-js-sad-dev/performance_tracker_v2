@@ -1,5 +1,17 @@
 <script setup lang="ts">
 
+import {defineModel} from 'vue'
+
+const currentView = defineModel<string>({required: true})
+
+const menuItems = [
+  {id: 'laps', label: 'Laps', icon: '⏱'},
+  {id: 'cars', label: 'Cars', icon: '🏎'},
+  {id: 'tracks', label: 'Tracks', icon: '🏁'},
+  {id: 'games', label: 'Games', icon: '🎮'},
+  {id: 'gear', label: 'Gear', icon: '⚙️'},
+]
+
 </script>
 
 <template>
@@ -9,20 +21,15 @@
     </div>
 
     <nav class="nav-menu">
-      <a href="#" class="nav-item active">
-        <span class="icon">⏱</span> Laps
-      </a>
-      <a href="#" class="nav-item">
-        <span class="icon">🏎</span> Cars
-      </a>
-      <a href="#" class="nav-item">
-        <span class="icon">🏁</span> Tracks
-      </a>
-      <a href="#" class="nav-item">
-        <span class="icon">🎮</span> Games
-      </a>
-      <a href="#" class="nav-item">
-        <span class="icon">⚙️</span> Gear
+      <a
+          v-for="item in menuItems"
+          :key="item.id"
+          :href="`/${item.id}`"
+          class="nav-item"
+          :class="{ active: currentView === item.id }"
+          @click.prevent="currentView = item.id"
+      >
+        <span class="icon">{{ item.icon }}</span> {{ item.label }}
       </a>
     </nav>
 

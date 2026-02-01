@@ -3,12 +3,19 @@ import './assets/main.css'
 
 import Sidebar from './components/Sidebar.vue'
 import Main from './components/Main.vue'
+
+import {reactive} from "vue";
+
+const state = reactive({
+  currentView: 'laps'
+});
+
 </script>
 
 <template>
   <div class="app-container">
-    <Sidebar></Sidebar>
-    <Main></Main>
+    <Sidebar v-model="state.currentView" }></Sidebar>
+    <Main :current="state.currentView"></Main>
   </div>
 </template>
 
