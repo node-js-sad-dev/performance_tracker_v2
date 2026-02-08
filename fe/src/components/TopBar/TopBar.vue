@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import NewEntryButton from "./NewEntryButton.vue";
+import NewEntryButton from "../NewEntryButton/NewEntryButton.vue";
 </script>
 
 <template>

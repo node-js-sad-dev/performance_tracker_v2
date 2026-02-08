@@ -1,7 +1,5 @@
 <script setup lang="ts">
 
-import {defineModel} from 'vue'
-
 const currentView = defineModel<string>({required: true})
 
 const menuItems = [
@@ -35,7 +33,7 @@ const menuItems = [
 
     <div class="user-profile">
       <div class="avatar">D</div>
-      <span>Driver 1</span>
+      <span>Later this block will display current user</span>
     </div>
   </aside>
 </template>

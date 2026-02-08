@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TableRow from "./TableRow.vue";
+import TableRow from "../TableRow/TableRow.vue";
 </script>
 
 <template>

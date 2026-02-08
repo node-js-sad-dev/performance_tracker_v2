@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import './assets/main.css'
+import './assets/main.css';
 
-import Sidebar from './components/Sidebar.vue'
-import Main from './components/Main.vue'
+import Sidebar from './components/Sidebar/Sidebar.vue';
+import Main from './components/Main/Main.vue';
 
-import {reactive} from "vue";
+import { reactive } from 'vue';
 
 const state = reactive({
-  currentView: 'laps'
+  currentView: 'laps',
 });
-
 </script>
 
 <template>
   <div class="app-container">
     <Sidebar v-model="state.currentView" }></Sidebar>
-    <Main :current="state.currentView"></Main>
+    <Main :currentView="state.currentView"></Main>
   </div>
 </template>
 
