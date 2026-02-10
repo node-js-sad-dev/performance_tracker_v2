@@ -1,10 +1,6 @@
 package models
 
-import "time"
-
-type Car struct {
-	CreatedAt time.Time `json:"created_at"`
-
+type Track struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name"`
 	Image       *string `json:"image"`
