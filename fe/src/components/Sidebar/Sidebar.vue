@@ -1,15 +1,20 @@
 <script setup lang="ts">
+import { CURRENT_VIEW } from '../../core/consts.ts';
 
-const currentView = defineModel<string>({required: true})
+const currentView = defineModel<keyof typeof CURRENT_VIEW>({ required: true });
 
 const menuItems = [
-  {id: 'laps', label: 'Laps', icon: '⏱'},
-  {id: 'cars', label: 'Cars', icon: '🏎'},
-  {id: 'tracks', label: 'Tracks', icon: '🏁'},
-  {id: 'games', label: 'Games', icon: '🎮'},
-  {id: 'gear', label: 'Gear', icon: '⚙️'},
-]
-
+  { id: 'laps', label: 'Laps', icon: '⏱', currentView: CURRENT_VIEW.LAPS },
+  { id: 'cars', label: 'Cars', icon: '🏎', currentView: CURRENT_VIEW.CARS },
+  {
+    id: 'tracks',
+    label: 'Tracks',
+    icon: '🏁',
+    currentView: CURRENT_VIEW.TRACKS,
+  },
+  { id: 'games', label: 'Games', icon: '🎮', currentView: CURRENT_VIEW.GAMES },
+  { id: 'gear', label: 'Gear', icon: '⚙️', currentView: CURRENT_VIEW.GEAR },
+];
 </script>
 
 <template>
@@ -20,13 +25,12 @@ const menuItems = [
 
     <nav class="nav-menu">
       <a
-          v-for="item in menuItems"
-          :key="item.id"
-          :href="`/${item.id}`"
-          class="nav-item"
-          :class="{ active: currentView === item.id }"
-          @click.prevent="currentView = item.id"
-      >
+        v-for="item in menuItems"
+        :key="item.id"
+        :href="`/${item.id}`"
+        class="nav-item"
+        :class="{ active: currentView === item.id }"
+        @click.prevent="currentView = item.currentView">
         <span class="icon">{{ item.icon }}</span> {{ item.label }}
       </a>
     </nav>

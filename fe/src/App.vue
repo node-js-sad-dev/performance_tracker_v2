@@ -5,15 +5,18 @@ import Sidebar from './components/Sidebar/Sidebar.vue';
 import Main from './components/Main/Main.vue';
 
 import { reactive } from 'vue';
+import { CURRENT_VIEW } from './core/consts.ts';
 
-const state = reactive({
-  currentView: 'laps',
+const state = reactive<{
+  currentView: keyof typeof CURRENT_VIEW;
+}>({
+  currentView: CURRENT_VIEW.LAPS,
 });
 </script>
 
 <template>
   <div class="app-container">
-    <Sidebar v-model="state.currentView" }></Sidebar>
+    <Sidebar v-model="state.currentView"></Sidebar>
     <Main :currentView="state.currentView"></Main>
   </div>
 </template>
