@@ -21,5 +21,5 @@ type GetListLap struct {
 
 type GetLapsResponse struct {
 	Laps       []GetListLap `json:"laps"`
-	TotalCount int          `json:"total_count"`
+	TotalCount int64        `json:"total_count"`
 }

@@ -25,19 +25,19 @@ type Controller struct {
 //	@Success		200			{object}	core.SwaggerSuccessResponse[GetCarsResponse]
 //	@Router			/car [get]
 func (controller *Controller) GetList(extraction *core.ExtractorResult[any, GetCarsFilter, any]) *core.ActionFuncResponse {
-	cars, carsError := controller.Service.GetAllCars(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
-	if carsError != nil {
-		return core.DbErrorResponse(carsError)
+	cars, err := controller.Service.GetAllCars(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
+	if err != nil {
+		return core.DbErrorResponse(err)
 	}
 
-	totalCount, countError := controller.Service.GetTotalCarsCount(extraction.Context, extraction.QueryParams)
-	if countError != nil {
-		return core.DbErrorResponse(countError)
+	totalCount, err := controller.Service.GetTotalCarsCount(extraction.Context, extraction.QueryParams)
+	if err != nil {
+		return core.DbErrorResponse(err)
 	}
 
 	return core.SuccessResponse(GetCarsResponse{
 		Cars:       cars,
-		TotalCount: int(totalCount),
+		TotalCount: totalCount,
 	})
 }
 
@@ -51,15 +51,15 @@ func (controller *Controller) GetList(extraction *core.ExtractorResult[any, GetC
 //	@Success		200	{object}	core.SwaggerSuccessResponse[models.Car]
 //	@Router			/car [post]
 func (controller *Controller) Create(extraction *core.ExtractorResult[CreateCarRequest, any, any]) *core.ActionFuncResponse {
-	carID, createError := controller.Service.CreateCar(extraction.Context, extraction.Body)
+	carID, err := controller.Service.CreateCar(extraction.Context, extraction.Body)
 
-	if createError != nil {
-		return core.DbErrorResponse(createError)
+	if err != nil {
+		return core.DbErrorResponse(err)
 	}
 
-	car, getError := controller.Service.GetCarByID(extraction.Context, carID)
-	if getError != nil {
-		return core.DbErrorResponse(getError)
+	car, err := controller.Service.GetCarByID(extraction.Context, carID)
+	if err != nil {
+		return core.DbErrorResponse(err)
 	}
 
 	return core.SuccessResponse(car)
@@ -74,10 +74,10 @@ func (controller *Controller) Create(extraction *core.ExtractorResult[CreateCarR
 //	@Success		200	{object}	core.SwaggerSuccessResponse[models.Car]
 //	@Router			/car/{id} [get]
 func (controller *Controller) GetByID(extraction *core.ExtractorResult[any, any, core.GetByIdParams]) *core.ActionFuncResponse {
-	car, getError := controller.Service.GetCarByID(extraction.Context, extraction.Params.ID)
+	car, err := controller.Service.GetCarByID(extraction.Context, extraction.Params.ID)
 
-	if getError != nil {
-		return core.DbErrorResponse(getError)
+	if err != nil {
+		return core.DbErrorResponse(err)
 	}
 
 	return core.SuccessResponse(car)

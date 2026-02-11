@@ -29,18 +29,18 @@ type Controller struct {
 //	@Success		200			{object}	core.SwaggerSuccessResponse[GetLapsResponse]
 //	@Router			/lap [get]
 func (controller *Controller) GetList(extraction *core.ExtractorResult[any, GetLapsFilter, any]) *core.ActionFuncResponse {
-	laps, lapsError := controller.Service.GetAllLaps(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
-	if lapsError != nil {
-		return core.DbErrorResponse(lapsError)
+	laps, err := controller.Service.GetAllLaps(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
+	if err != nil {
+		return core.DbErrorResponse(err)
 	}
 
-	totalCount, countError := controller.Service.GetTotalLapsCount(extraction.Context, extraction.QueryParams)
-	if countError != nil {
-		return core.DbErrorResponse(countError)
+	totalCount, err := controller.Service.GetTotalLapsCount(extraction.Context, extraction.QueryParams)
+	if err != nil {
+		return core.DbErrorResponse(err)
 	}
 
 	return core.SuccessResponse(GetLapsResponse{
 		Laps:       laps,
-		TotalCount: int(totalCount),
+		TotalCount: totalCount,
 	})
 }

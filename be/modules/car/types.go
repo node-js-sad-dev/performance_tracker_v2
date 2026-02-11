@@ -8,7 +8,7 @@ type GetCarsFilter struct {
 
 type GetCarsResponse struct {
 	Cars       []models.Car `json:"cars"`
-	TotalCount int          `json:"total_count"`
+	TotalCount int64        `json:"total_count"`
 }
 
 type CreateCarRequest struct {
