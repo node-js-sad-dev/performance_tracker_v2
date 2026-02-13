@@ -1,26 +1,24 @@
 <script setup lang="ts">
-import TopBar from '../TopBar/TopBar.vue'
-import Table from '../Table/Table.vue'
-import Pagination from '../Pagination/Pagination.vue'
-import type {Props, State} from "./interfaces.ts";
+import TopBar from '../TopBar/TopBar.vue';
+import Table from '../Table/Table.vue';
+import Pagination from '../Pagination/Pagination.vue';
+import type { Props, State } from './interfaces.ts';
 
-import {reactive} from "vue";
+import { reactive } from 'vue';
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 const state = reactive<State>({
-  laps: []
-})
-
+  laps: [],
+});
 </script>
 
 <template>
-  <main class="main-content" :current-view="props.currentView">
-    <TopBar :currentView="props.currentView"></TopBar>
+  <main class="main-content" :entity="props.entity">
+    <TopBar :entity="props.entity"></TopBar>
     <section class="content-view" id="view-list">
       <div class="data-table-container">
-        <Table :laps="state.laps">
-        </Table>
+        <Table :laps="state.laps"> </Table>
       </div>
       <Pagination></Pagination>
     </section>

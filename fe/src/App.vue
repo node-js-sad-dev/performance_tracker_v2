@@ -5,19 +5,19 @@ import Sidebar from './components/Sidebar/Sidebar.vue';
 import Main from './components/Main/Main.vue';
 
 import { reactive } from 'vue';
-import { CURRENT_VIEW } from './core/consts.ts';
+import { Entity } from './core/enums.ts';
 
 const state = reactive<{
-  currentView: keyof typeof CURRENT_VIEW;
+  entity: Entity;
 }>({
-  currentView: CURRENT_VIEW.LAPS,
+  entity: Entity.LAPS,
 });
 </script>
 
 <template>
   <div class="app-container">
-    <Sidebar v-model="state.currentView"></Sidebar>
-    <Main :currentView="state.currentView"></Main>
+    <Sidebar v-model="state.entity"></Sidebar>
+    <Main :entity="state.entity"></Main>
   </div>
 </template>
 

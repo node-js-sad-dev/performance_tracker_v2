@@ -1,7 +1,8 @@
-import type { Lap } from '../../core/interfaces.ts';
+import { Lap } from '../../core/interfaces.ts';
+import { Entity } from '../../core/enums.ts';
 
 export interface Props {
-  currentView: string;
+  entity: Entity;
 }
 
 export interface State {

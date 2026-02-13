@@ -6,5 +6,6 @@ be/docs
 fe/node_modules
 fe/.vscode
 fe/dist
+fe/.env
 
 .vscode

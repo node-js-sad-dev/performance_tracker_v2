@@ -1,5 +1,5 @@
-import { CURRENT_VIEW } from '../../core/consts.ts';
+import type { Entity } from '../../core/enums.ts';
 
 export interface Props {
-  currentView: keyof typeof CURRENT_VIEW;
+  entity: Entity;
 }

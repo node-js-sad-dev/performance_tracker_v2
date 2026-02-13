@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { CURRENT_VIEW } from '../../core/consts.ts';
+import { Entity } from '../../core/enums.ts';
 
-const currentView = defineModel<keyof typeof CURRENT_VIEW>({ required: true });
+const entity = defineModel<Entity>({ required: true });
 
 const menuItems = [
-  { id: 'laps', label: 'Laps', icon: '⏱', currentView: CURRENT_VIEW.LAPS },
-  { id: 'cars', label: 'Cars', icon: '🏎', currentView: CURRENT_VIEW.CARS },
+  { id: 'laps', label: 'Laps', icon: '⏱', entity: Entity.LAPS },
+  { id: 'cars', label: 'Cars', icon: '🏎', entity: Entity.CARS },
   {
     id: 'tracks',
     label: 'Tracks',
     icon: '🏁',
-    currentView: CURRENT_VIEW.TRACKS,
+    entity: Entity.TRACKS,
   },
-  { id: 'games', label: 'Games', icon: '🎮', currentView: CURRENT_VIEW.GAMES },
-  { id: 'gear', label: 'Gear', icon: '⚙️', currentView: CURRENT_VIEW.GEAR },
+  { id: 'games', label: 'Games', icon: '🎮', entity: Entity.GAMES },
+  { id: 'gear', label: 'Gear', icon: '⚙️', entity: Entity.GEAR },
 ];
 </script>
 
@@ -29,8 +29,8 @@ const menuItems = [
         :key="item.id"
         :href="`/${item.id}`"
         class="nav-item"
-        :class="{ active: currentView === item.id }"
-        @click.prevent="currentView = item.currentView">
+        :class="{ active: entity === item.id }"
+        @click.prevent="entity = item.entity">
         <span class="icon">{{ item.icon }}</span> {{ item.label }}
       </a>
     </nav>
