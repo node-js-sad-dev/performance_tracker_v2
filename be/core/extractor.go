@@ -13,6 +13,14 @@ func Extract[
 	Query any,
 	Params any,
 ](config *config.Config, pool *pgxpool.Pool, c *gin.Context) (*ExtractorResult[Body, Query, Params], error) {
+	/*
+		TODO
+		need special type for body to handle null values,
+		need distinction between empty body and body with empty fields,
+		for now we will use pointer to struct and check if it's nil or not
+
+	*/
+
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
 		page = 1
@@ -26,7 +34,7 @@ func Extract[
 	pagination := &Pagination{Page: page, Limit: limit}
 
 	sort := &Sort{
-		SortBy:    c.DefaultQuery("sortBy", "created_at"),
+		SortBy:    c.DefaultQuery("sortBy", "id"),
 		SortOrder: c.DefaultQuery("sortOrder", "desc"),
 	}
 

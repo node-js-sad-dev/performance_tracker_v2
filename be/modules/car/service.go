@@ -96,8 +96,22 @@ func (service *Service) CreateCar(context context.Context, payload *CreateCarReq
 	return id, nil
 }
 
-func (service *Service) UpdateCar(context context.Context, id int, name string, image string, description string) {
+func (service *Service) UpdateCar(context context.Context, id int, payload *UpdateCarRequest) error {
+	_, err := service.Pool.Query(context, `
+		update cars set
+			name = COALESCE($1, name),
+			image = COALESCE($2, image),
+			description = COALESCE($3, description)
+		where id = $4
+	`, payload.Name, payload.Image, payload.Description, id)
+
+	return err
 }
 
-func (service *Service) DeleteCar(context context.Context, id int) {
+func (service *Service) DeleteCar(context context.Context, id int) error {
+	_, err := service.Pool.Query(context, `
+		delete from cars where id = $1
+	`, id)
+
+	return err
 }

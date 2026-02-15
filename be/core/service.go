@@ -98,3 +98,27 @@ func GetEntityCount(payload GetEntityCountPayload) (int64, error) {
 
 	return count, nil
 }
+
+func UpdateEntity(payload UpdateEntityPayload) (pgx.Row, error) {
+	//var setParts []string
+	//var args []interface{}
+	//placeholderIdx := 1
+	//
+	//for column, value := range payload.Updates {
+	//	setParts = append(setParts, fmt.Sprintf("%s = $%d", column, placeholderIdx))
+	//	args = append(args, value)
+	//	placeholderIdx++
+	//}
+	//
+	//query := fmt.Sprintf(
+	//	"UPDATE %s SET %s WHERE id = $%d",
+	//	payload.Table,
+	//	strings.Join(setParts, ", "),
+	//	placeholderIdx,
+	//)
+	//args = append(args, payload.ID)
+	//
+	//return query, args
+
+	return nil, nil
+}

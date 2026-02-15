@@ -16,3 +16,9 @@ type CreateCarRequest struct {
 	Description string `json:"description" binding:"required"`
 	Image       string `json:"image"`
 }
+
+type UpdateCarRequest struct {
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	Image       *string `json:"image"`
+}

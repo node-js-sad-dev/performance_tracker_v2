@@ -72,3 +72,11 @@ type SwaggerSuccessResponse[T any] struct {
 type GetByIdParams struct {
 	ID int `uri:"id" binding:"required"`
 }
+
+type UpdateEntityPayload struct {
+	ID      int
+	Pool    *pgxpool.Pool
+	Context context.Context
+	Updates map[string]interface{}
+	Table   string
+}
