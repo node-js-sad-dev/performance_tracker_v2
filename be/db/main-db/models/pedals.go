@@ -1,8 +1,12 @@
 package models
 
+import "time"
+
 type Pedals struct {
-	ID   string `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+
+	ID   int64  `json:"id"`
 	Name string `json:"name"`
 
-	IsDefault bool `json:"isDefault"`
+	IsDefault bool `json:"is_default"`
 }

@@ -13,50 +13,50 @@ For each entity there will be 3 pages - list, edit/create and detailed. design w
 Database entities:
 
 1. Lap
-  id
-  createdAt
-  carId
-  trackId
-  gameId
-  wheelId
-  cockpitId
-  pedalsId
-  gearboxId
-  time
-  isClear
-  hasSignificantErrors
+  id  
+  createdAt  
+  carId  
+  trackId  
+  gameId  
+  wheelId  
+  cockpitId  
+  pedalsId  
+  gearboxId  
+  time  
+  isClear  
+  hasSignificantErrors  
 
 2. Wheel
-  id
-  name
-  isDefault
+  id  
+  name  
+  isDefault  
 
 3. Pedals
-  id
-  name
-  isDefault
+  id  
+  name  
+  isDefault  
 
 4. Cockpit
-  id
-  name
-  isDefault
+  id  
+  name  
+  isDefault  
 
 5. Car
-  id
-  name
-  image (optional)
-  createdAt
-  description (optional, make it field text input, maybe here will store some useful information about car, settings and so on)
+  id  
+  name  
+  image (optional)  
+  createdAt  
+  description (optional, make it field text input, maybe here will store some useful information about car, settings and so on)  
 
 6. Track
-  id
-  name
-  image (optional)
-  createdAt
-  description (similar to cars)
+  id  
+  name  
+  image (optional)  
+  createdAt  
+  description (similar to cars)  
 
 7. Game
-  id
-  name
-  createdAt
-  image (optional) - just so end page will look better
+  id  
+  name  
+  createdAt  
+  image (optional) - just so end page will look better  
