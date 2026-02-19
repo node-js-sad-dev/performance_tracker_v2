@@ -13,6 +13,20 @@ type FilterRule struct {
 	IsFuzzy  bool
 }
 
+type Validator interface {
+	Validate() error
+}
+
+type Optional[T any] struct {
+	Value  T
+	IsSet  bool // True if the key was present in the JSON payload
+	IsNull bool // True if the key was present AND the value was null
+}
+
+type Empty struct{}
+
+func (e Empty) Validate() error { return nil }
+
 type Pagination struct {
 	Page  int `json:"page"`
 	Limit int `json:"limit"`
@@ -23,19 +37,15 @@ type Sort struct {
 	SortOrder string `json:"sortOrder"`
 }
 
-type ExtractorResult[
-	Body any,
-	Query any,
-	Params any,
-] struct {
+type ExtractorResult[Body Validator, Query Validator, Params Validator] struct {
 	Params      *Params
 	Pagination  *Pagination
 	Sort        *Sort
 	QueryParams *Query
 	Body        *Body
 	Headers     *map[string]string
-	Pool        *pgxpool.Pool
 	Config      *config.Config
+	Pool        *pgxpool.Pool
 	Context     context.Context
 }
 

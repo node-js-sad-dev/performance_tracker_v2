@@ -9,17 +9,10 @@ import (
 )
 
 func Extract[
-	Body any,
-	Query any,
-	Params any,
+	Body Validator,
+	Query Validator,
+	Params Validator,
 ](config *config.Config, pool *pgxpool.Pool, c *gin.Context) (*ExtractorResult[Body, Query, Params], error) {
-	/*
-		TODO
-		need special type for body to handle null values,
-		need distinction between empty body and body with empty fields,
-		for now we will use pointer to struct and check if it's nil or not
-
-	*/
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
@@ -38,16 +31,6 @@ func Extract[
 		SortOrder: c.DefaultQuery("sortOrder", "desc"),
 	}
 
-	params := new(Params)
-	if err := c.ShouldBindUri(params); err != nil {
-		return nil, err
-	}
-
-	queryParams := new(Query)
-	if err := c.ShouldBindQuery(queryParams); err != nil {
-		return nil, err
-	}
-
 	headers := make(map[string]string)
 	for k, v := range c.Request.Header {
 		if len(v) > 0 {
@@ -55,10 +38,28 @@ func Extract[
 		}
 	}
 
-	body := new(Body)
+	params := new(Params)
+	if err := c.ShouldBindUri(params); err != nil {
+		return nil, err
+	}
+	if err := (*params).Validate(); err != nil {
+		return nil, err
+	}
 
+	queryParams := new(Query)
+	if err := c.ShouldBindQuery(queryParams); err != nil {
+		return nil, err
+	}
+	if err := (*queryParams).Validate(); err != nil {
+		return nil, err
+	}
+
+	body := new(Body)
 	if c.Request.ContentLength > 0 {
 		if err := c.ShouldBindJSON(body); err != nil {
+			return nil, err
+		}
+		if err := (*body).Validate(); err != nil {
 			return nil, err
 		}
 	}

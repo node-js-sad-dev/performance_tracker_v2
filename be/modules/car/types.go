@@ -6,6 +6,11 @@ type GetCarsFilter struct {
 	Name []string `form:"name"`
 }
 
+// Validate this approach guarantees type safety but requires more boilerplate
+func (filter GetCarsFilter) Validate() error {
+	return nil
+}
+
 type GetCarsResponse struct {
 	Cars       []models.Car `json:"cars"`
 	TotalCount int64        `json:"total_count"`

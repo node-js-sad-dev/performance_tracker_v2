@@ -24,7 +24,7 @@ type Controller struct {
 //	@Param			sortOrder	query		string	false	"Sort order"
 //	@Success		200			{object}	core.SwaggerSuccessResponse[GetCarsResponse]
 //	@Router			/car [get]
-func (controller *Controller) GetList(extraction *core.ExtractorResult[any, GetCarsFilter, any]) *core.ActionFuncResponse {
+func (controller *Controller) GetList(extraction *core.ExtractorResult[core.Empty, GetCarsFilter, core.Empty]) *core.ActionFuncResponse {
 	cars, err := controller.Service.GetAllCars(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
 	if err != nil {
 		return core.DbErrorResponse(err)
@@ -50,7 +50,7 @@ func (controller *Controller) GetList(extraction *core.ExtractorResult[any, GetC
 //	@Param			car	body		CreateCarRequest	true	"Car to create"
 //	@Success		200	{object}	core.SwaggerSuccessResponse[models.Car]
 //	@Router			/car [post]
-func (controller *Controller) Create(extraction *core.ExtractorResult[CreateCarRequest, any, any]) *core.ActionFuncResponse {
+func (controller *Controller) Create(extraction *core.ExtractorResult[CreateCarRequest, core.Empty, core.Empty]) *core.ActionFuncResponse {
 	carID, err := controller.Service.CreateCar(extraction.Context, extraction.Body)
 
 	if err != nil {
@@ -73,7 +73,7 @@ func (controller *Controller) Create(extraction *core.ExtractorResult[CreateCarR
 //	@Param			id	path		string	true	"Car ID"
 //	@Success		200	{object}	core.SwaggerSuccessResponse[models.Car]
 //	@Router			/car/{id} [get]
-func (controller *Controller) GetByID(extraction *core.ExtractorResult[any, any, core.GetByIdParams]) *core.ActionFuncResponse {
+func (controller *Controller) GetByID(extraction *core.ExtractorResult[core.Empty, core.Empty, core.GetByIdParams]) *core.ActionFuncResponse {
 	car, err := controller.Service.GetCarByID(extraction.Context, extraction.Params.ID)
 
 	if err != nil {
