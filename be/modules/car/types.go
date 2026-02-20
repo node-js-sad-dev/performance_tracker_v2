@@ -1,6 +1,9 @@
 package car
 
-import "performance_tracker_v2_be/db/main-db/models"
+import (
+	"performance_tracker_v2_be/core"
+	"performance_tracker_v2_be/db/main-db/models"
+)
 
 type GetCarsFilter struct {
 	Name []string `form:"name"`
@@ -22,8 +25,15 @@ type CreateCarRequest struct {
 	Image       string `json:"image"`
 }
 
+//type UpdateCarRequest struct {
+//	Name        *string `json:"name"`
+//	Description *string `json:"description"`
+//	Image       *string `json:"image"`
+//}
+
 type UpdateCarRequest struct {
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
-	Image       *string `json:"image"`
+	Name        core.OptionalBodyField[string] `json:"name"`
+	Description core.OptionalBodyField[string] `json:"description"`
+
+	Image core.OptionalBodyField[string] `json:"image"`
 }

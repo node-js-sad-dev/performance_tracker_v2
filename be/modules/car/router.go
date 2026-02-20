@@ -16,7 +16,7 @@ func Router(config *config.Config, pool *pgxpool.Pool, router *gin.RouterGroup) 
 
 	carGroup := router.Group("/car")
 	{
-		carGroup.GET("/:id", core.Handler[any, any, core.GetByIdParams](config, pool, controller.GetByID))
+		carGroup.GET("/:id", core.Handler[struct{}, struct{}, core.GetByIdParams](config, pool, controller.GetByID))
 
 		carGroup.GET("/", core.Handler[any, GetCarsFilter, any](config, pool, controller.GetList))
 

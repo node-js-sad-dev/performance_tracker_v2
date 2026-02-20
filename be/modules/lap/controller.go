@@ -28,7 +28,7 @@ type Controller struct {
 //	@Param			clear		query		string	false	"Clear filter"
 //	@Success		200			{object}	core.SwaggerSuccessResponse[GetLapsResponse]
 //	@Router			/lap [get]
-func (controller *Controller) GetList(extraction *core.ExtractorResult[any, GetLapsFilter, any]) *core.ActionFuncResponse {
+func (controller *Controller) GetList(extraction *core.ExtractorResult[core.Empty, GetLapsFilter, core.Empty]) *core.ActionFuncResponse {
 	laps, err := controller.Service.GetAllLaps(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
 	if err != nil {
 		return core.DbErrorResponse(err)

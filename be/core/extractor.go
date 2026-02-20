@@ -9,9 +9,9 @@ import (
 )
 
 func Extract[
-	Body struct{},
-	Query struct{},
-	Params struct{},
+	Body any,
+	Query any,
+	Params any,
 ](config *config.Config, pool *pgxpool.Pool, c *gin.Context) (*ExtractorResult[Body, Query, Params], error) {
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -62,8 +62,6 @@ func Extract[
 		QueryParams: queryParams,
 		Body:        body,
 		Headers:     &headers,
-		Config:      config,
-		Pool:        pool,
 		Context:     c.Request.Context(),
 	}, nil
 }

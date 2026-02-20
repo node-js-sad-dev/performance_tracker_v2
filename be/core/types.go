@@ -13,20 +13,6 @@ type FilterRule struct {
 	IsFuzzy  bool
 }
 
-type Validator interface {
-	Validate() error
-}
-
-type Optional[T any] struct {
-	Value  T
-	IsSet  bool // True if the key was present in the JSON payload
-	IsNull bool // True if the key was present AND the value was null
-}
-
-type Empty struct{}
-
-func (e Empty) Validate() error { return nil }
-
 type Pagination struct {
 	Page  int `json:"page"`
 	Limit int `json:"limit"`
@@ -90,3 +76,5 @@ type UpdateEntityPayload struct {
 	Updates map[string]interface{}
 	Table   string
 }
+
+type Empty struct{}
