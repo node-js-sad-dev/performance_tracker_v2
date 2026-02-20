@@ -96,8 +96,8 @@ func (service *Service) CreateCar(context context.Context, payload *CreateCarReq
 	return id, nil
 }
 
-func (service *Service) UpdateCar(context context.Context, id int, payload *UpdateCarRequest) error {
-	updates := core.StructToMap[core.OptionalBodyField[interface{}]](payload)
+func (service *Service) UpdateCarById(context context.Context, id int, payload *UpdateCarRequestParsed) error {
+	updates := core.StructToMap[core.IOptionalField](payload)
 
 	return core.UpdateEntity(core.UpdateEntityByIdPayload{
 		ID:      id,
@@ -108,7 +108,7 @@ func (service *Service) UpdateCar(context context.Context, id int, payload *Upda
 	})
 }
 
-func (service *Service) DeleteCar(context context.Context, id int) error {
+func (service *Service) DeleteCarById(context context.Context, id int) error {
 	_, err := service.Pool.Query(context, `
 		delete from cars where id = $1
 	`, id)

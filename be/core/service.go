@@ -105,16 +105,16 @@ func UpdateEntity(payload UpdateEntityByIdPayload) error {
 	argID := 1
 
 	for col, field := range payload.Updates {
-		if !field.IsSet {
+		if !field.GetIsSet() {
 			continue
 		}
 
 		setClauses = append(setClauses, fmt.Sprintf(`"%s" = $%d`, col, argID))
 
-		if field.IsNull {
+		if field.GetIsNull() {
 			args = append(args, nil)
 		} else {
-			args = append(args, field.Value)
+			args = append(args, field.GetValue())
 		}
 
 		argID++

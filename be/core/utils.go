@@ -52,7 +52,19 @@ func StructToMap[Result any](input any) map[string]Result {
 			key = field.Name
 		}
 
-		result[key] = fieldVal.Interface().(Result)
+		valAsInterface := fieldVal.Interface()
+		if converted, ok := valAsInterface.(Result); ok {
+			result[key] = converted
+			continue
+		}
+
+		if fieldVal.CanAddr() {
+			ptrAsInterface := fieldVal.Addr().Interface()
+			if converted, ok := ptrAsInterface.(Result); ok {
+				result[key] = converted
+				continue
+			}
+		}
 	}
 
 	return result

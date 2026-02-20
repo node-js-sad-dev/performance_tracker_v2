@@ -5,19 +5,29 @@ import (
 	"encoding/json"
 )
 
+type IOptionalField interface {
+	GetIsSet() bool
+	GetIsNull() bool
+	GetValue() any
+}
+
 type OptionalBodyField[T any] struct {
 	Value  T
 	IsSet  bool
 	IsNull bool
 }
 
-func (o *OptionalBodyField[T]) UnmarshalJSON(data []byte) error {
-	o.IsSet = true
+func (f *OptionalBodyField[T]) GetIsSet() bool  { return f.IsSet }
+func (f *OptionalBodyField[T]) GetIsNull() bool { return f.IsNull }
+func (f *OptionalBodyField[T]) GetValue() any   { return f.Value }
+
+func (f *OptionalBodyField[T]) UnmarshalJSON(data []byte) error {
+	f.IsSet = true
 
 	if bytes.Equal(data, []byte("null")) {
-		o.IsNull = true
+		f.IsNull = true
 		return nil
 	}
 
-	return json.Unmarshal(data, &o.Value)
+	return json.Unmarshal(data, &f.Value)
 }

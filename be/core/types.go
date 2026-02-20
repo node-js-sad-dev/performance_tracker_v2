@@ -73,7 +73,7 @@ type UpdateEntityByIdPayload struct {
 	ID      int
 	Pool    *pgxpool.Pool
 	Context context.Context
-	Updates map[string]OptionalBodyField[any]
+	Updates map[string]IOptionalField
 	Table   string
 }
 

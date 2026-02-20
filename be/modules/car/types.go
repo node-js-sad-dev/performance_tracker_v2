@@ -20,7 +20,14 @@ type CreateCarRequest struct {
 	Image       string `json:"image"`
 }
 
-type UpdateCarRequest struct {
+type UpdateCarRequestInput struct {
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+
+	Image *string `json:"image"`
+}
+
+type UpdateCarRequestParsed struct {
 	Name        core.OptionalBodyField[string] `json:"name"`
 	Description core.OptionalBodyField[string] `json:"description"`
 

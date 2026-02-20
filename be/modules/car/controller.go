@@ -82,3 +82,57 @@ func (controller *Controller) GetByID(extraction *core.ExtractorResult[core.Empt
 
 	return core.SuccessResponse(car)
 }
+
+// UpdateByID @Summary Update car by ID
+//
+//	@Description	Update a car by its ID
+//	@Tags			Car
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string				true	"Car ID"
+//	@Param			car	body		UpdateCarRequestInput	true	"Car fields to update"
+//	@Success		200	{object}	core.SwaggerSuccessResponse[core.Empty]
+//	@Router			/car/{id} [patch]
+func (controller *Controller) UpdateByID(extraction *core.ExtractorResult[UpdateCarRequestParsed, core.Empty, core.GetByIdParams]) *core.ActionFuncResponse {
+	car, err := controller.Service.GetCarByID(extraction.Context, extraction.Params.ID)
+
+	if err != nil {
+		return core.DbErrorResponse(err)
+	}
+
+	if car == nil {
+		return core.NotFoundErrorResponse("car")
+	}
+
+	if err := controller.Service.UpdateCarById(extraction.Context, extraction.Params.ID, extraction.Body); err != nil {
+		return core.DbErrorResponse(err)
+	}
+
+	return core.DefaultSuccessResponse()
+}
+
+// DeleteByID @Summary Delete car by ID
+//
+//	@Description	Delete a car by its ID
+//	@Tags			Car
+//	@Produce		json
+//	@Param			id	path		string	true	"Car ID"
+//	@Success		200	{object}	core.SwaggerSuccessResponse[core.Empty]
+//	@Router			/car/{id} [delete]
+func (controller *Controller) DeleteByID(extraction *core.ExtractorResult[core.Empty, core.Empty, core.GetByIdParams]) *core.ActionFuncResponse {
+	car, err := controller.Service.GetCarByID(extraction.Context, extraction.Params.ID)
+
+	if err != nil {
+		return core.DbErrorResponse(err)
+	}
+
+	if car == nil {
+		return core.NotFoundErrorResponse("car")
+	}
+
+	if err := controller.Service.DeleteCarById(extraction.Context, extraction.Params.ID); err != nil {
+		return core.DbErrorResponse(err)
+	}
+
+	return core.DefaultSuccessResponse()
+}

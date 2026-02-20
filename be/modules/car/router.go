@@ -17,9 +17,9 @@ func Router(config *config.Config, pool *pgxpool.Pool, router *gin.RouterGroup) 
 	carGroup := router.Group("/car")
 	{
 		carGroup.GET("/:id", core.Handler(config, pool, controller.GetByID))
-
+		carGroup.PATCH("/:id", core.Handler(config, pool, controller.UpdateByID))
+		carGroup.DELETE("/:id", core.Handler(config, pool, controller.DeleteByID))
 		carGroup.GET("/", core.Handler(config, pool, controller.GetList))
-
 		carGroup.POST("/", core.Handler(config, pool, controller.Create))
 	}
 }

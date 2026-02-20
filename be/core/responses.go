@@ -2,6 +2,8 @@ package core
 
 import (
 	"errors"
+
+	"github.com/gin-gonic/gin"
 )
 
 func SuccessResponse(data interface{}) *ActionFuncResponse {
@@ -9,6 +11,16 @@ func SuccessResponse(data interface{}) *ActionFuncResponse {
 		Status: 200,
 		Data:   data,
 		Error:  nil,
+	}
+}
+
+func DefaultSuccessResponse() *ActionFuncResponse {
+	return &ActionFuncResponse{
+		Status: 200,
+		Data: gin.H{
+			"message": "success",
+		},
+		Error: nil,
 	}
 }
 
@@ -20,9 +32,17 @@ func CommonErrorResponse(status int, errorMessage string) *ActionFuncResponse {
 	}
 }
 
+func NotFoundErrorResponse(entityName string) *ActionFuncResponse {
+	return &ActionFuncResponse{
+		Status: 404,
+		Data:   nil,
+		Error:  errors.New(entityName + " not found"),
+	}
+}
+
 func DbErrorResponse(err error) *ActionFuncResponse {
 	switch err.Error() {
-	case "record not found":
+	case "no rows in result set":
 		return &ActionFuncResponse{
 			Status: 404,
 			Data:   nil,
