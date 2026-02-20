@@ -37,7 +37,7 @@ type Sort struct {
 	SortOrder string `json:"sortOrder"`
 }
 
-type ExtractorResult[Body Validator, Query Validator, Params Validator] struct {
+type ExtractorResult[Body any, Query any, Params any] struct {
 	Params      *Params
 	Pagination  *Pagination
 	Sort        *Sort

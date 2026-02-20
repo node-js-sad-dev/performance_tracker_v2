@@ -9,9 +9,9 @@ import (
 )
 
 func Extract[
-	Body Validator,
-	Query Validator,
-	Params Validator,
+	Body struct{},
+	Query struct{},
+	Params struct{},
 ](config *config.Config, pool *pgxpool.Pool, c *gin.Context) (*ExtractorResult[Body, Query, Params], error) {
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -42,24 +42,15 @@ func Extract[
 	if err := c.ShouldBindUri(params); err != nil {
 		return nil, err
 	}
-	if err := (*params).Validate(); err != nil {
-		return nil, err
-	}
 
 	queryParams := new(Query)
 	if err := c.ShouldBindQuery(queryParams); err != nil {
-		return nil, err
-	}
-	if err := (*queryParams).Validate(); err != nil {
 		return nil, err
 	}
 
 	body := new(Body)
 	if c.Request.ContentLength > 0 {
 		if err := c.ShouldBindJSON(body); err != nil {
-			return nil, err
-		}
-		if err := (*body).Validate(); err != nil {
 			return nil, err
 		}
 	}
