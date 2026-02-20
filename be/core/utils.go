@@ -52,7 +52,7 @@ func StructToMap[Result any](input any) map[string]Result {
 			key = field.Name
 		}
 
-		result[key] = fieldVal.Interface()
+		result[key] = fieldVal.Interface().(Result)
 	}
 
 	return result
