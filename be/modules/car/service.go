@@ -97,15 +97,15 @@ func (service *Service) CreateCar(context context.Context, payload *CreateCarReq
 }
 
 func (service *Service) UpdateCar(context context.Context, id int, payload *UpdateCarRequest) error {
-	_, err := service.Pool.Query(context, `
-		update cars set
-			name = COALESCE($1, name),
-			image = COALESCE($2, image),
-			description = COALESCE($3, description)
-		where id = $4
-	`, payload.Name, payload.Image, payload.Description, id)
+	updates := core.StructToMap[core.OptionalBodyField[interface{}]](payload)
 
-	return err
+	return core.UpdateEntity(core.UpdateEntityByIdPayload{
+		ID:      id,
+		Pool:    service.Pool,
+		Context: context,
+		Updates: updates,
+		Table:   "cars",
+	})
 }
 
 func (service *Service) DeleteCar(context context.Context, id int) error {

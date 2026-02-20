@@ -99,26 +99,44 @@ func GetEntityCount(payload GetEntityCountPayload) (int64, error) {
 	return count, nil
 }
 
-func UpdateEntity(payload UpdateEntityPayload) (pgx.Row, error) {
-	//var setParts []string
-	//var args []interface{}
-	//placeholderIdx := 1
-	//
-	//for column, value := range payload.Updates {
-	//	setParts = append(setParts, fmt.Sprintf("%s = $%d", column, placeholderIdx))
-	//	args = append(args, value)
-	//	placeholderIdx++
-	//}
-	//
-	//query := fmt.Sprintf(
-	//	"UPDATE %s SET %s WHERE id = $%d",
-	//	payload.Table,
-	//	strings.Join(setParts, ", "),
-	//	placeholderIdx,
-	//)
-	//args = append(args, payload.ID)
-	//
-	//return query, args
+func UpdateEntity(payload UpdateEntityByIdPayload) error {
+	var setClauses []string
+	var args []interface{}
+	argID := 1
 
-	return nil, nil
+	for col, field := range payload.Updates {
+		if !field.IsSet {
+			continue
+		}
+
+		setClauses = append(setClauses, fmt.Sprintf(`"%s" = $%d`, col, argID))
+
+		if field.IsNull {
+			args = append(args, nil)
+		} else {
+			args = append(args, field.Value)
+		}
+
+		argID++
+	}
+
+	if len(setClauses) == 0 {
+		return nil
+	}
+
+	query := fmt.Sprintf(
+		`UPDATE "%s" SET %s WHERE id = $%d`,
+		payload.Table,
+		strings.Join(setClauses, ", "),
+		argID,
+	)
+
+	args = append(args, payload.ID)
+
+	_, err := payload.Pool.Exec(payload.Context, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to update entity in table %s: %w", payload.Table, err)
+	}
+
+	return nil
 }

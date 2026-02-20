@@ -9,11 +9,6 @@ type GetCarsFilter struct {
 	Name []string `form:"name"`
 }
 
-// Validate this approach guarantees type safety but requires more boilerplate
-func (filter GetCarsFilter) Validate() error {
-	return nil
-}
-
 type GetCarsResponse struct {
 	Cars       []models.Car `json:"cars"`
 	TotalCount int64        `json:"total_count"`
@@ -24,12 +19,6 @@ type CreateCarRequest struct {
 	Description string `json:"description" binding:"required"`
 	Image       string `json:"image"`
 }
-
-//type UpdateCarRequest struct {
-//	Name        *string `json:"name"`
-//	Description *string `json:"description"`
-//	Image       *string `json:"image"`
-//}
 
 type UpdateCarRequest struct {
 	Name        core.OptionalBodyField[string] `json:"name"`

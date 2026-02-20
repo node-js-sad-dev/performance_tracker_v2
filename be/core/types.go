@@ -69,11 +69,11 @@ type GetByIdParams struct {
 	ID int `uri:"id" binding:"required"`
 }
 
-type UpdateEntityPayload struct {
+type UpdateEntityByIdPayload struct {
 	ID      int
 	Pool    *pgxpool.Pool
 	Context context.Context
-	Updates map[string]interface{}
+	Updates map[string]OptionalBodyField[any]
 	Table   string
 }
 
