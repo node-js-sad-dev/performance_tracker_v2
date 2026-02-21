@@ -12,7 +12,7 @@ type Service struct {
 }
 
 func (service *Service) GetAllLaps(
-	context context.Context,
+	ctx context.Context,
 	pagination *core.Pagination,
 	sort *core.Sort,
 	filters *GetLapsFilter,
@@ -41,7 +41,7 @@ func (service *Service) GetAllLaps(
 	}, nil
 }
 
-func (service *Service) GetTotalLapsCount(context context.Context, filters *GetLapsFilter) (int64, error) {
+func (service *Service) GetTotalLapsCount(ctx context.Context, filters *GetLapsFilter) (int64, error) {
 	// todo: get real count from db, mock for now
 
 	return 2, nil

@@ -20,19 +20,19 @@ func (service *Service) GetFilters() map[string]core.FilterRule {
 	}
 }
 
-func (service *Service) GetAllCars(
-	context context.Context,
+func (service *Service) GetList(
+	ctx context.Context,
 	pagination *core.Pagination,
 	sort *core.Sort,
-	filters *GetCarsFilter,
+	filters *GetFilters,
 ) ([]models.Car, error) {
 	rows, err := core.GetEntityList(core.GetEntityListPayload{
 		Pool:         service.Pool,
-		Context:      context,
+		Context:      ctx,
 		TableName:    "cars",
 		Pagination:   pagination,
 		Sort:         sort,
-		Filters:      helpers.StructToQueryFilters(filters),
+		Filters:      helpers.StructToMap[[]string](filters),
 		FilterRules:  service.GetFilters(),
 		SelectFields: []string{"id", "name", "image", "description", "created_at"},
 	})
@@ -55,18 +55,18 @@ func (service *Service) GetAllCars(
 	return result, nil
 }
 
-func (service *Service) GetTotalCarsCount(context context.Context, filters *GetCarsFilter) (int64, error) {
+func (service *Service) GetTotalCount(ctx context.Context, filters *GetFilters) (int64, error) {
 	return core.GetEntityCount(core.GetEntityCountPayload{
 		Pool:        service.Pool,
-		Context:     context,
+		Context:     ctx,
 		TableName:   "cars",
-		Filters:     helpers.StructToQueryFilters(filters),
+		Filters:     helpers.StructToMap[[]string](filters),
 		FilterRules: service.GetFilters(),
 	})
 }
 
-func (service *Service) GetCarByID(context context.Context, id int) (*models.Car, error) {
-	car := service.Pool.QueryRow(context, `
+func (service *Service) GetById(ctx context.Context, id int64) (*models.Car, error) {
+	car := service.Pool.QueryRow(ctx, `
 		SELECT id, name, image, description, created_at
 		FROM cars
 		WHERE id = $1
@@ -81,13 +81,13 @@ func (service *Service) GetCarByID(context context.Context, id int) (*models.Car
 	return &result, nil
 }
 
-func (service *Service) CreateCar(context context.Context, payload *CreateCarRequest) (int, error) {
-	result := service.Pool.QueryRow(context, `
+func (service *Service) Create(ctx context.Context, payload *CreateRequest) (int64, error) {
+	result := service.Pool.QueryRow(ctx, `
 		INSERT INTO cars (name, image, description)
 		VALUES ($1, $2, $3) returning id
 	`, payload.Name, payload.Image, payload.Description)
 
-	var id int
+	var id int64
 
 	if err := result.Scan(&id); err != nil {
 		return 0, err
@@ -96,20 +96,20 @@ func (service *Service) CreateCar(context context.Context, payload *CreateCarReq
 	return id, nil
 }
 
-func (service *Service) UpdateCarById(context context.Context, id int, payload *UpdateCarRequestParsed) error {
-	updates := core.StructToMap[core.IOptionalField](payload)
+func (service *Service) UpdateById(ctx context.Context, id int64, payload *UpdateRequestParsed) error {
+	updates := helpers.StructToMap[core.IOptionalField](payload)
 
 	return core.UpdateEntity(core.UpdateEntityByIdPayload{
 		ID:      id,
 		Pool:    service.Pool,
-		Context: context,
+		Context: ctx,
 		Updates: updates,
 		Table:   "cars",
 	})
 }
 
-func (service *Service) DeleteCarById(context context.Context, id int) error {
-	_, err := service.Pool.Query(context, `
+func (service *Service) DeleteById(ctx context.Context, id int64) error {
+	_, err := service.Pool.Query(ctx, `
 		delete from cars where id = $1
 	`, id)
 

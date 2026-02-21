@@ -10,7 +10,6 @@ import (
 
 func Router(config *config.Config, pool *pgxpool.Pool, router *gin.RouterGroup) {
 	controller := &Controller{
-		Pool:    pool,
 		Service: &Service{Pool: pool},
 	}
 

@@ -2,12 +2,20 @@ package helpers
 
 import "reflect"
 
-func StructToQueryFilters(data interface{}) map[string][]string {
-	result := make(map[string][]string)
+// StructToMap have a strong feeling it is not the best approach but good idea to test
+func StructToMap[Result any](input any) map[string]Result {
+	result := make(map[string]Result)
 
-	val := reflect.ValueOf(data)
+	if input == nil {
+		return result
+	}
 
-	if val.Kind() == reflect.Ptr {
+	val := reflect.ValueOf(input)
+
+	for val.Kind() == reflect.Ptr {
+		if val.IsNil() {
+			return result
+		}
 		val = val.Elem()
 	}
 
@@ -18,17 +26,35 @@ func StructToQueryFilters(data interface{}) map[string][]string {
 	typ := val.Type()
 
 	for i := 0; i < val.NumField(); i++ {
-		field := val.Field(i)
-		structField := typ.Field(i)
+		field := typ.Field(i)
+		fieldVal := val.Field(i)
 
-		tag := structField.Tag.Get("form")
-
-		if tag == "" || field.Len() == 0 {
+		if !field.IsExported() {
 			continue
 		}
 
-		if strSlice, ok := field.Interface().([]string); ok {
-			result[tag] = strSlice
+		key := field.Tag.Get("json")
+
+		if key == "-" {
+			continue
+		}
+
+		if key == "" {
+			key = field.Name
+		}
+
+		valAsInterface := fieldVal.Interface()
+		if converted, ok := valAsInterface.(Result); ok {
+			result[key] = converted
+			continue
+		}
+
+		if fieldVal.CanAddr() {
+			ptrAsInterface := fieldVal.Addr().Interface()
+			if converted, ok := ptrAsInterface.(Result); ok {
+				result[key] = converted
+				continue
+			}
 		}
 	}
 

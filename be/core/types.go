@@ -66,11 +66,11 @@ type SwaggerSuccessResponse[T any] struct {
 }
 
 type GetByIdParams struct {
-	ID int `uri:"id" binding:"required"`
+	ID int64 `uri:"id" binding:"required"`
 }
 
 type UpdateEntityByIdPayload struct {
-	ID      int
+	ID      int64
 	Pool    *pgxpool.Pool
 	Context context.Context
 	Updates map[string]IOptionalField
