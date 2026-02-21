@@ -13,12 +13,12 @@ func Router(config *config.Config, pool *pgxpool.Pool, router *gin.RouterGroup) 
 		Service: &Service{Pool: pool},
 	}
 
-	carGroup := router.Group("/car")
+	group := router.Group("/car")
 	{
-		carGroup.GET("/:id", core.Handler(config, pool, controller.GetByID))
-		carGroup.PATCH("/:id", core.Handler(config, pool, controller.UpdateByID))
-		carGroup.DELETE("/:id", core.Handler(config, pool, controller.DeleteByID))
-		carGroup.GET("/", core.Handler(config, pool, controller.GetList))
-		carGroup.POST("/", core.Handler(config, pool, controller.Create))
+		group.GET("/:id", core.Handler(config, pool, controller.GetByID))
+		group.PATCH("/:id", core.Handler(config, pool, controller.UpdateByID))
+		group.DELETE("/:id", core.Handler(config, pool, controller.DeleteByID))
+		group.GET("/", core.Handler(config, pool, controller.GetList))
+		group.POST("/", core.Handler(config, pool, controller.Create))
 	}
 }

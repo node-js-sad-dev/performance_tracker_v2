@@ -70,7 +70,7 @@ func (service *Service) GetTotalCount(ctx context.Context, filters *GetFilters) 
 	})
 }
 
-func (service *Service) GetById(ctx context.Context, id int) (*models.Cockpit, error) {
+func (service *Service) GetById(ctx context.Context, id int64) (*models.Cockpit, error) {
 	cockpit := service.Pool.QueryRow(ctx, `
 		SELECT id, name, is_default, created_at
 		FROM cockpits
@@ -85,7 +85,7 @@ func (service *Service) GetById(ctx context.Context, id int) (*models.Cockpit, e
 	return &result, nil
 }
 
-func (service *Service) Create(ctx context.Context, payload CreateRequest) (int64, error) {
+func (service *Service) Create(ctx context.Context, payload *CreateRequest) (int64, error) {
 	var id int64
 
 	err := pgx.BeginFunc(ctx, service.Pool, func(tx pgx.Tx) error {
@@ -110,9 +110,9 @@ func (service *Service) Create(ctx context.Context, payload CreateRequest) (int6
 	return id, err
 }
 
-func (service *Service) UpdateById(ctx context.Context, id int64, payload UpdateRequestParsed) error {
+func (service *Service) UpdateById(ctx context.Context, id int64, payload *UpdateRequestParsed) error {
 	return pgx.BeginFunc(ctx, service.Pool, func(tx pgx.Tx) error {
-		var entityFromDb *models.Cockpit
+		var entityFromDb models.Cockpit
 
 		err := tx.QueryRow(ctx, `
 			SELECT id, name, is_default, created_at
@@ -124,7 +124,7 @@ func (service *Service) UpdateById(ctx context.Context, id int64, payload Update
 			return err
 		}
 
-		if entityFromDb == nil {
+		if &entityFromDb == nil {
 			return errors.New("cockpit not found with id: " + strconv.FormatInt(id, 10))
 		}
 
@@ -150,4 +150,12 @@ func (service *Service) UpdateById(ctx context.Context, id int64, payload Update
 			Table:    "cockpits",
 		})
 	})
+}
+
+func (service *Service) DeleteById(ctx context.Context, id int64) error {
+	_, err := service.Pool.Query(ctx, `
+		delete from cockpits where id = $1
+	`, id)
+
+	return err
 }
