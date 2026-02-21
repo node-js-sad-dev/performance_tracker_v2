@@ -4,6 +4,7 @@ import (
 	"context"
 	"performance_tracker_v2_be/config"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -69,12 +70,16 @@ type GetByIdParams struct {
 	ID int64 `uri:"id" binding:"required"`
 }
 
+type IDbExecutor interface {
+	Exec(ctx context.Context, sql string, arguments ...interface{}) (pgconn.CommandTag, error)
+}
+
 type UpdateEntityByIdPayload struct {
-	ID      int64
-	Pool    *pgxpool.Pool
-	Context context.Context
-	Updates map[string]IOptionalField
-	Table   string
+	ID       int64
+	Executor IDbExecutor
+	Context  context.Context
+	Updates  map[string]IOptionalField
+	Table    string
 }
 
 type Empty struct{}

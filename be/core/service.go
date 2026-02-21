@@ -99,12 +99,12 @@ func GetEntityCount(payload GetEntityCountPayload) (int64, error) {
 	return count, nil
 }
 
-func UpdateEntity(payload UpdateEntityByIdPayload) error {
+func GetUpdateQueryArgs(updates map[string]IOptionalField) (string, []interface{}, int) {
 	var setClauses []string
 	var args []interface{}
 	argID := 1
 
-	for col, field := range payload.Updates {
+	for col, field := range updates {
 		if !field.GetIsSet() {
 			continue
 		}
@@ -120,20 +120,26 @@ func UpdateEntity(payload UpdateEntityByIdPayload) error {
 		argID++
 	}
 
-	if len(setClauses) == 0 {
+	return strings.Join(setClauses, ", "), args, argID
+}
+
+func UpdateEntity(payload UpdateEntityByIdPayload) error {
+	clauses, args, argID := GetUpdateQueryArgs(payload.Updates)
+
+	if len(clauses) == 0 {
 		return nil
 	}
 
 	query := fmt.Sprintf(
 		`UPDATE "%s" SET %s WHERE id = $%d`,
 		payload.Table,
-		strings.Join(setClauses, ", "),
+		clauses,
 		argID,
 	)
 
 	args = append(args, payload.ID)
 
-	_, err := payload.Pool.Exec(payload.Context, query, args...)
+	_, err := payload.Executor.Exec(payload.Context, query, args...)
 	if err != nil {
 		return fmt.Errorf("failed to update entity in table %s: %w", payload.Table, err)
 	}

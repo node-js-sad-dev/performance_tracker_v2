@@ -100,11 +100,11 @@ func (service *Service) UpdateById(ctx context.Context, id int64, payload *Updat
 	updates := helpers.StructToMap[core.IOptionalField](payload)
 
 	return core.UpdateEntity(core.UpdateEntityByIdPayload{
-		ID:      id,
-		Pool:    service.Pool,
-		Context: ctx,
-		Updates: updates,
-		Table:   "cars",
+		ID:       id,
+		Executor: service.Pool,
+		Context:  ctx,
+		Updates:  updates,
+		Table:    "cars",
 	})
 }
 
