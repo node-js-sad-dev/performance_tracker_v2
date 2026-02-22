@@ -54,7 +54,7 @@ func (controller *Controller) Create(extraction *core.ExtractorResult[CreateRequ
 		return core.DbErrorResponse(err)
 	}
 
-	cockpit, err := controller.Service.GetById(extraction.Context, cockpitID)
+	cockpit, err := controller.Service.GetByID(extraction.Context, cockpitID)
 	if err != nil {
 		return core.DbErrorResponse(err)
 	}
@@ -71,7 +71,7 @@ func (controller *Controller) Create(extraction *core.ExtractorResult[CreateRequ
 //	@Success		200	{object}	core.SwaggerSuccessResponse[models.Cockpit]
 //	@Router			/cockpit/{id} [get]
 func (controller *Controller) GetByID(extraction *core.ExtractorResult[core.Empty, core.Empty, core.GetByIdParams]) *core.ActionFuncResponse {
-	cockpit, err := controller.Service.GetById(extraction.Context, extraction.Params.ID)
+	cockpit, err := controller.Service.GetByID(extraction.Context, extraction.Params.ID)
 	if err != nil {
 		return core.DbErrorResponse(err)
 	}
@@ -90,7 +90,7 @@ func (controller *Controller) GetByID(extraction *core.ExtractorResult[core.Empt
 //	@Success		200	{object}	core.SwaggerSuccessResponse[models.Cockpit]
 //	@Router			/cockpit/{id} [patch]
 func (controller *Controller) UpdateByID(extraction *core.ExtractorResult[UpdateRequestParsed, core.Empty, core.GetByIdParams]) *core.ActionFuncResponse {
-	err := controller.Service.UpdateById(extraction.Context, extraction.Params.ID, extraction.Body)
+	err := controller.Service.UpdateByID(extraction.Context, extraction.Params.ID, extraction.Body)
 	if err != nil {
 		return core.DbErrorResponse(err)
 	}
@@ -107,7 +107,7 @@ func (controller *Controller) UpdateByID(extraction *core.ExtractorResult[Update
 //	@Success		200	{object}	core.SwaggerSuccessResponse[core.Empty]
 //	@Router			/cockpit/{id} [delete]
 func (controller *Controller) DeleteByID(extraction *core.ExtractorResult[core.Empty, core.Empty, core.GetByIdParams]) *core.ActionFuncResponse {
-	cockpit, err := controller.Service.GetById(extraction.Context, extraction.Params.ID)
+	cockpit, err := controller.Service.GetByID(extraction.Context, extraction.Params.ID)
 
 	if err != nil {
 		return core.DbErrorResponse(err)
@@ -117,7 +117,7 @@ func (controller *Controller) DeleteByID(extraction *core.ExtractorResult[core.E
 		return core.NotFoundErrorResponse("cockpit")
 	}
 
-	if err := controller.Service.DeleteById(extraction.Context, extraction.Params.ID); err != nil {
+	if err := controller.Service.DeleteByID(extraction.Context, extraction.Params.ID); err != nil {
 		return core.DbErrorResponse(err)
 	}
 

@@ -54,7 +54,7 @@ func (controller *Controller) Create(extraction *core.ExtractorResult[CreateRequ
 		return core.DbErrorResponse(err)
 	}
 
-	car, err := controller.Service.GetById(extraction.Context, carID)
+	car, err := controller.Service.GetByID(extraction.Context, carID)
 	if err != nil {
 		return core.DbErrorResponse(err)
 	}
@@ -71,7 +71,7 @@ func (controller *Controller) Create(extraction *core.ExtractorResult[CreateRequ
 //	@Success		200	{object}	core.SwaggerSuccessResponse[models.Car]
 //	@Router			/car/{id} [get]
 func (controller *Controller) GetByID(extraction *core.ExtractorResult[core.Empty, core.Empty, core.GetByIdParams]) *core.ActionFuncResponse {
-	car, err := controller.Service.GetById(extraction.Context, extraction.Params.ID)
+	car, err := controller.Service.GetByID(extraction.Context, extraction.Params.ID)
 
 	if err != nil {
 		return core.DbErrorResponse(err)
@@ -91,7 +91,7 @@ func (controller *Controller) GetByID(extraction *core.ExtractorResult[core.Empt
 //	@Success		200	{object}	core.SwaggerSuccessResponse[core.Empty]
 //	@Router			/car/{id} [patch]
 func (controller *Controller) UpdateByID(extraction *core.ExtractorResult[UpdateRequestParsed, core.Empty, core.GetByIdParams]) *core.ActionFuncResponse {
-	car, err := controller.Service.GetById(extraction.Context, extraction.Params.ID)
+	car, err := controller.Service.GetByID(extraction.Context, extraction.Params.ID)
 
 	if err != nil {
 		return core.DbErrorResponse(err)
@@ -101,7 +101,7 @@ func (controller *Controller) UpdateByID(extraction *core.ExtractorResult[Update
 		return core.NotFoundErrorResponse("car")
 	}
 
-	if err := controller.Service.UpdateById(extraction.Context, extraction.Params.ID, extraction.Body); err != nil {
+	if err := controller.Service.UpdateByID(extraction.Context, extraction.Params.ID, extraction.Body); err != nil {
 		return core.DbErrorResponse(err)
 	}
 
@@ -117,7 +117,7 @@ func (controller *Controller) UpdateByID(extraction *core.ExtractorResult[Update
 //	@Success		200	{object}	core.SwaggerSuccessResponse[core.Empty]
 //	@Router			/car/{id} [delete]
 func (controller *Controller) DeleteByID(extraction *core.ExtractorResult[core.Empty, core.Empty, core.GetByIdParams]) *core.ActionFuncResponse {
-	car, err := controller.Service.GetById(extraction.Context, extraction.Params.ID)
+	car, err := controller.Service.GetByID(extraction.Context, extraction.Params.ID)
 
 	if err != nil {
 		return core.DbErrorResponse(err)
@@ -127,7 +127,7 @@ func (controller *Controller) DeleteByID(extraction *core.ExtractorResult[core.E
 		return core.NotFoundErrorResponse("car")
 	}
 
-	if err := controller.Service.DeleteById(extraction.Context, extraction.Params.ID); err != nil {
+	if err := controller.Service.DeleteByID(extraction.Context, extraction.Params.ID); err != nil {
 		return core.DbErrorResponse(err)
 	}
 

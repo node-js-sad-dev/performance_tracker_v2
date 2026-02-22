@@ -1,4 +1,4 @@
-package car
+package game
 
 import (
 	"context"
@@ -25,16 +25,16 @@ func (service *Service) GetList(
 	pagination *core.Pagination,
 	sort *core.Sort,
 	filters *GetFilters,
-) ([]models.Car, error) {
+) ([]models.Game, error) {
 	rows, err := core.GetEntityList(core.GetEntityListPayload{
 		Pool:         service.Pool,
 		Context:      ctx,
-		TableName:    "cars",
+		TableName:    "games",
 		Pagination:   pagination,
 		Sort:         sort,
 		Filters:      helpers.StructToMap[[]string](filters),
 		FilterRules:  service.GetFilters(),
-		SelectFields: []string{"id", "name", "image", "description", "created_at"},
+		SelectFields: []string{"id", "name", "image", "created_at"},
 	})
 
 	if err != nil {
@@ -43,13 +43,13 @@ func (service *Service) GetList(
 
 	defer rows.Close()
 
-	result := make([]models.Car, 0)
+	result := make([]models.Game, 0)
 	for rows.Next() {
-		var car models.Car
-		if err := rows.Scan(&car.ID, &car.Name, &car.Image, &car.Description, &car.CreatedAt); err != nil {
+		var game models.Game
+		if err := rows.Scan(&game.ID, &game.Name, &game.Image, &game.CreatedAt); err != nil {
 			return nil, err
 		}
-		result = append(result, car)
+		result = append(result, game)
 	}
 
 	return result, nil
@@ -59,22 +59,21 @@ func (service *Service) GetTotalCount(ctx context.Context, filters *GetFilters) 
 	return core.GetEntityCount(core.GetEntityCountPayload{
 		Pool:        service.Pool,
 		Context:     ctx,
-		TableName:   "cars",
+		TableName:   "games",
 		Filters:     helpers.StructToMap[[]string](filters),
 		FilterRules: service.GetFilters(),
 	})
 }
 
-func (service *Service) GetByID(ctx context.Context, id int64) (*models.Car, error) {
-	car := service.Pool.QueryRow(ctx, `
-		SELECT id, name, image, description, created_at
-		FROM cars
+func (service *Service) GetByID(ctx context.Context, id int64) (*models.Game, error) {
+	game := service.Pool.QueryRow(ctx, `
+		SELECT id, name, image, created_at
+		FROM games
 		WHERE id = $1
 	`, id)
 
-	var result models.Car
-
-	if err := car.Scan(&result.ID, &result.Name, &result.Image, &result.Description, &result.CreatedAt); err != nil {
+	var result models.Game
+	if err := game.Scan(&result.ID, &result.Name, &result.Image, &result.CreatedAt); err != nil {
 		return nil, err
 	}
 
@@ -82,14 +81,14 @@ func (service *Service) GetByID(ctx context.Context, id int64) (*models.Car, err
 }
 
 func (service *Service) Create(ctx context.Context, payload *CreateRequest) (int64, error) {
-	result := service.Pool.QueryRow(ctx, `
-		INSERT INTO cars (name, image, description)
-		VALUES ($1, $2, $3) returning id
-	`, payload.Name, payload.Image, payload.Description)
-
 	var id int64
+	err := service.Pool.QueryRow(ctx, `
+		INSERT INTO games (name, image)
+		VALUES ($1, $2)
+		RETURNING id
+	`, payload.Name, payload.Image).Scan(&id)
 
-	if err := result.Scan(&id); err != nil {
+	if err != nil {
 		return 0, err
 	}
 
@@ -109,8 +108,9 @@ func (service *Service) UpdateByID(ctx context.Context, id int64, payload *Updat
 }
 
 func (service *Service) DeleteByID(ctx context.Context, id int64) error {
-	_, err := service.Pool.Query(ctx, `
-		delete from cars where id = $1
+	_, err := service.Pool.Exec(ctx, `
+		DELETE FROM games
+		WHERE id = $1
 	`, id)
 
 	return err

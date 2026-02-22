@@ -70,7 +70,7 @@ func (service *Service) GetTotalCount(ctx context.Context, filters *GetFilters) 
 	})
 }
 
-func (service *Service) GetById(ctx context.Context, id int64) (*models.Cockpit, error) {
+func (service *Service) GetByID(ctx context.Context, id int64) (*models.Cockpit, error) {
 	cockpit := service.Pool.QueryRow(ctx, `
 		SELECT id, name, is_default, created_at
 		FROM cockpits
@@ -110,7 +110,7 @@ func (service *Service) Create(ctx context.Context, payload *CreateRequest) (int
 	return id, err
 }
 
-func (service *Service) UpdateById(ctx context.Context, id int64, payload *UpdateRequestParsed) error {
+func (service *Service) UpdateByID(ctx context.Context, id int64, payload *UpdateRequestParsed) error {
 	return pgx.BeginFunc(ctx, service.Pool, func(tx pgx.Tx) error {
 		var entityFromDb models.Cockpit
 
@@ -152,7 +152,7 @@ func (service *Service) UpdateById(ctx context.Context, id int64, payload *Updat
 	})
 }
 
-func (service *Service) DeleteById(ctx context.Context, id int64) error {
+func (service *Service) DeleteByID(ctx context.Context, id int64) error {
 	_, err := service.Pool.Query(ctx, `
 		delete from cockpits where id = $1
 	`, id)
