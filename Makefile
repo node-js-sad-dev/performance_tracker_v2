@@ -3,6 +3,9 @@
 migrate-new:
 	cd be && migrate create -ext sql -dir ./db/main-db/migrations -seq $(name)
 
+migrate-down:
+	migrate -path $(path) -database "$(db_connection)?sslmode=disable" down 1
+
 run_fe:
 	cd fe && npm run dev
 

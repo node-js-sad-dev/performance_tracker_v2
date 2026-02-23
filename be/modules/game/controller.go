@@ -1,6 +1,10 @@
 package game
 
-import "performance_tracker_v2_be/core"
+import (
+	"performance_tracker_v2_be/core"
+
+	_ "performance_tracker_v2_be/db/main-db/models"
+)
 
 type Controller struct {
 	Service *Service
