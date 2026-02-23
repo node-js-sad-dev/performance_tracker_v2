@@ -1,7 +1,7 @@
 package game
 
 import (
-	"performance_tracker_v2_be/core"
+	"performance_tracker_v2_be/core/handler"
 	"performance_tracker_v2_be/db/main-db/models"
 )
 
@@ -25,6 +25,6 @@ type UpdateRequestInput struct {
 }
 
 type UpdateRequestParsed struct {
-	Name  core.OptionalBodyField[string] `json:"name"`
-	Image core.OptionalBodyField[string] `json:"image"`
+	Name  handler.OptionalBodyField[string] `json:"name"`
+	Image handler.OptionalBodyField[string] `json:"image"`
 }

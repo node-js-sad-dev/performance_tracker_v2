@@ -2,7 +2,8 @@ package game
 
 import (
 	"context"
-	"performance_tracker_v2_be/core"
+	"performance_tracker_v2_be/core/handler"
+	"performance_tracker_v2_be/core/service"
 	"performance_tracker_v2_be/db/main-db/models"
 	"performance_tracker_v2_be/helpers"
 
@@ -13,27 +14,27 @@ type Service struct {
 	Pool *pgxpool.Pool
 }
 
-func (service *Service) GetFilters() map[string]core.FilterRule {
-	return map[string]core.FilterRule{
+func (s *Service) GetFilters() map[string]handler.FilterRule {
+	return map[string]handler.FilterRule{
 		"name": {DBColumn: "name", Operator: "ILIKE", IsFuzzy: true},
 		"id":   {DBColumn: "id", Operator: "=", IsFuzzy: false},
 	}
 }
 
-func (service *Service) GetList(
+func (s *Service) GetList(
 	ctx context.Context,
-	pagination *core.Pagination,
-	sort *core.Sort,
+	pagination *handler.Pagination,
+	sort *handler.Sort,
 	filters *GetFilters,
 ) ([]models.Game, error) {
-	rows, err := core.GetEntityList(core.GetEntityListPayload{
-		Pool:         service.Pool,
+	rows, err := service.GetEntityList(handler.GetEntityListPayload{
+		Pool:         s.Pool,
 		Context:      ctx,
 		TableName:    "games",
 		Pagination:   pagination,
 		Sort:         sort,
 		Filters:      helpers.StructToMap[[]string](filters),
-		FilterRules:  service.GetFilters(),
+		FilterRules:  s.GetFilters(),
 		SelectFields: []string{"id", "name", "image", "created_at"},
 	})
 
@@ -55,18 +56,18 @@ func (service *Service) GetList(
 	return result, nil
 }
 
-func (service *Service) GetTotalCount(ctx context.Context, filters *GetFilters) (int64, error) {
-	return core.GetEntityCount(core.GetEntityCountPayload{
-		Pool:        service.Pool,
+func (s *Service) GetTotalCount(ctx context.Context, filters *GetFilters) (int64, error) {
+	return service.GetEntityCount(handler.GetEntityCountPayload{
+		Pool:        s.Pool,
 		Context:     ctx,
 		TableName:   "games",
 		Filters:     helpers.StructToMap[[]string](filters),
-		FilterRules: service.GetFilters(),
+		FilterRules: s.GetFilters(),
 	})
 }
 
-func (service *Service) GetByID(ctx context.Context, id int64) (*models.Game, error) {
-	game := service.Pool.QueryRow(ctx, `
+func (s *Service) GetByID(ctx context.Context, id int64) (*models.Game, error) {
+	game := s.Pool.QueryRow(ctx, `
 		SELECT id, name, image, created_at
 		FROM games
 		WHERE id = $1
@@ -80,9 +81,9 @@ func (service *Service) GetByID(ctx context.Context, id int64) (*models.Game, er
 	return &result, nil
 }
 
-func (service *Service) Create(ctx context.Context, payload *CreateRequest) (int64, error) {
+func (s *Service) Create(ctx context.Context, payload *CreateRequest) (int64, error) {
 	var id int64
-	err := service.Pool.QueryRow(ctx, `
+	err := s.Pool.QueryRow(ctx, `
 		INSERT INTO games (name, image)
 		VALUES ($1, $2)
 		RETURNING id
@@ -95,20 +96,20 @@ func (service *Service) Create(ctx context.Context, payload *CreateRequest) (int
 	return id, nil
 }
 
-func (service *Service) UpdateByID(ctx context.Context, id int64, payload *UpdateRequestParsed) error {
-	updates := helpers.StructToMap[core.IOptionalField](payload)
+func (s *Service) UpdateByID(ctx context.Context, id int64, payload *UpdateRequestParsed) error {
+	updates := helpers.StructToMap[handler.IOptionalField](payload)
 
-	return core.UpdateEntity(core.UpdateEntityByIdPayload{
+	return service.UpdateEntity(handler.UpdateEntityByIdPayload{
 		ID:       id,
-		Executor: service.Pool,
+		Executor: s.Pool,
 		Context:  ctx,
 		Updates:  updates,
 		Table:    "cars",
 	})
 }
 
-func (service *Service) DeleteByID(ctx context.Context, id int64) error {
-	_, err := service.Pool.Exec(ctx, `
+func (s *Service) DeleteByID(ctx context.Context, id int64) error {
+	_, err := s.Pool.Exec(ctx, `
 		DELETE FROM games
 		WHERE id = $1
 	`, id)

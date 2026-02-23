@@ -1,13 +1,13 @@
 package lap
 
 import (
-	"performance_tracker_v2_be/core"
+	"performance_tracker_v2_be/core/handler"
+	"performance_tracker_v2_be/core/responses"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	_ "performance_tracker_v2_be/core/swagger"
 )
 
 type Controller struct {
-	Pool    *pgxpool.Pool
 	Service *Service
 }
 
@@ -26,20 +26,20 @@ type Controller struct {
 //	@Param			track		query		string	false	"Track filter"
 //	@Param			time		query		string	false	"Time filter"
 //	@Param			clear		query		string	false	"Clear filter"
-//	@Success		200			{object}	core.SwaggerSuccessResponse[GetLapsResponse]
+//	@Success		200			{object}	swagger.SuccessResponse[GetLapsResponse]
 //	@Router			/lap [get]
-func (controller *Controller) GetList(extraction *core.ExtractorResult[core.Empty, GetLapsFilter, core.Empty]) *core.ActionFuncResponse {
+func (controller *Controller) GetList(extraction *handler.ExtractorResult[handler.Empty, GetLapsFilter, handler.Empty]) *handler.ActionFuncResponse {
 	laps, err := controller.Service.GetAllLaps(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
 	if err != nil {
-		return core.DbErrorResponse(err)
+		return responses.DbErrorResponse(err)
 	}
 
 	totalCount, err := controller.Service.GetTotalLapsCount(extraction.Context, extraction.QueryParams)
 	if err != nil {
-		return core.DbErrorResponse(err)
+		return responses.DbErrorResponse(err)
 	}
 
-	return core.SuccessResponse(GetLapsResponse{
+	return responses.SuccessResponse(GetLapsResponse{
 		Laps:       laps,
 		TotalCount: totalCount,
 	})

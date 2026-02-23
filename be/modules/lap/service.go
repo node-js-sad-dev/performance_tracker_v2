@@ -2,7 +2,7 @@ package lap
 
 import (
 	"context"
-	"performance_tracker_v2_be/core"
+	"performance_tracker_v2_be/core/handler"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -11,10 +11,10 @@ type Service struct {
 	Pool *pgxpool.Pool
 }
 
-func (service *Service) GetAllLaps(
+func (s *Service) GetAllLaps(
 	ctx context.Context,
-	pagination *core.Pagination,
-	sort *core.Sort,
+	pagination *handler.Pagination,
+	sort *handler.Sort,
 	filters *GetLapsFilter,
 ) ([]GetListLap, error) {
 	// todo: get real values from db, mock for now
@@ -41,7 +41,7 @@ func (service *Service) GetAllLaps(
 	}, nil
 }
 
-func (service *Service) GetTotalLapsCount(ctx context.Context, filters *GetLapsFilter) (int64, error) {
+func (s *Service) GetTotalLapsCount(ctx context.Context, filters *GetLapsFilter) (int64, error) {
 	// todo: get real count from db, mock for now
 
 	return 2, nil

@@ -1,4 +1,4 @@
-package core
+package handler
 
 import (
 	"performance_tracker_v2_be/config"

@@ -1,4 +1,4 @@
-package core
+package handler
 
 import (
 	"context"
@@ -22,18 +22,6 @@ type Pagination struct {
 type Sort struct {
 	SortBy    string `json:"sortBy"`
 	SortOrder string `json:"sortOrder"`
-}
-
-type ExtractorResult[Body any, Query any, Params any] struct {
-	Params      *Params
-	Pagination  *Pagination
-	Sort        *Sort
-	QueryParams *Query
-	Body        *Body
-	Headers     *map[string]string
-	Config      *config.Config
-	Pool        *pgxpool.Pool
-	Context     context.Context
 }
 
 type GetEntityListPayload struct {
@@ -61,11 +49,6 @@ type ActionFuncResponse struct {
 	Error  error
 }
 
-type SwaggerSuccessResponse[T any] struct {
-	Success bool `json:"success"`
-	Data    T    `json:"data"`
-}
-
 type GetByIdParams struct {
 	ID int64 `uri:"id" binding:"required"`
 }
@@ -83,3 +66,15 @@ type UpdateEntityByIdPayload struct {
 }
 
 type Empty struct{}
+
+type ExtractorResult[Body any, Query any, Params any] struct {
+	Params      *Params
+	Pagination  *Pagination
+	Sort        *Sort
+	QueryParams *Query
+	Body        *Body
+	Headers     *map[string]string
+	Config      *config.Config
+	Pool        *pgxpool.Pool
+	Context     context.Context
+}

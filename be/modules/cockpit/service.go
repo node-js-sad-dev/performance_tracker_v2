@@ -3,7 +3,8 @@ package cockpit
 import (
 	"context"
 	"errors"
-	"performance_tracker_v2_be/core"
+	"performance_tracker_v2_be/core/handler"
+	"performance_tracker_v2_be/core/service"
 	"performance_tracker_v2_be/db/main-db/models"
 	"performance_tracker_v2_be/helpers"
 	"strconv"
@@ -16,27 +17,27 @@ type Service struct {
 	Pool *pgxpool.Pool
 }
 
-func (service *Service) GetFilters() map[string]core.FilterRule {
-	return map[string]core.FilterRule{
+func (s *Service) GetFilters() map[string]handler.FilterRule {
+	return map[string]handler.FilterRule{
 		"name": {DBColumn: "name", Operator: "ILIKE", IsFuzzy: true},
 		"id":   {DBColumn: "id", Operator: "=", IsFuzzy: false},
 	}
 }
 
-func (service *Service) GetList(
+func (s *Service) GetList(
 	ctx context.Context,
-	pagination *core.Pagination,
-	sort *core.Sort,
+	pagination *handler.Pagination,
+	sort *handler.Sort,
 	filters *GetFilters,
 ) ([]models.Cockpit, error) {
-	rows, err := core.GetEntityList(core.GetEntityListPayload{
-		Pool:        service.Pool,
+	rows, err := service.GetEntityList(handler.GetEntityListPayload{
+		Pool:        s.Pool,
 		Context:     ctx,
 		TableName:   "cockpits",
 		Pagination:  pagination,
 		Sort:        sort,
 		Filters:     helpers.StructToMap[[]string](filters),
-		FilterRules: service.GetFilters(),
+		FilterRules: s.GetFilters(),
 		SelectFields: []string{
 			"id", "name", "is_default", "created_at",
 		},
@@ -60,18 +61,18 @@ func (service *Service) GetList(
 	return result, nil
 }
 
-func (service *Service) GetTotalCount(ctx context.Context, filters *GetFilters) (int64, error) {
-	return core.GetEntityCount(core.GetEntityCountPayload{
-		Pool:        service.Pool,
+func (s *Service) GetTotalCount(ctx context.Context, filters *GetFilters) (int64, error) {
+	return service.GetEntityCount(handler.GetEntityCountPayload{
+		Pool:        s.Pool,
 		Context:     ctx,
 		TableName:   "cockpits",
 		Filters:     helpers.StructToMap[[]string](filters),
-		FilterRules: service.GetFilters(),
+		FilterRules: s.GetFilters(),
 	})
 }
 
-func (service *Service) GetByID(ctx context.Context, id int64) (*models.Cockpit, error) {
-	cockpit := service.Pool.QueryRow(ctx, `
+func (s *Service) GetByID(ctx context.Context, id int64) (*models.Cockpit, error) {
+	cockpit := s.Pool.QueryRow(ctx, `
 		SELECT id, name, is_default, created_at
 		FROM cockpits
 		WHERE id = $1
@@ -85,10 +86,10 @@ func (service *Service) GetByID(ctx context.Context, id int64) (*models.Cockpit,
 	return &result, nil
 }
 
-func (service *Service) Create(ctx context.Context, payload *CreateRequest) (int64, error) {
+func (s *Service) Create(ctx context.Context, payload *CreateRequest) (int64, error) {
 	var id int64
 
-	err := pgx.BeginFunc(ctx, service.Pool, func(tx pgx.Tx) error {
+	err := pgx.BeginFunc(ctx, s.Pool, func(tx pgx.Tx) error {
 		if payload.IsDefault {
 			_, err := tx.Exec(ctx, `
 				UPDATE cockpits
@@ -110,8 +111,8 @@ func (service *Service) Create(ctx context.Context, payload *CreateRequest) (int
 	return id, err
 }
 
-func (service *Service) UpdateByID(ctx context.Context, id int64, payload *UpdateRequestParsed) error {
-	return pgx.BeginFunc(ctx, service.Pool, func(tx pgx.Tx) error {
+func (s *Service) UpdateByID(ctx context.Context, id int64, payload *UpdateRequestParsed) error {
+	return pgx.BeginFunc(ctx, s.Pool, func(tx pgx.Tx) error {
 		var entityFromDb models.Cockpit
 
 		err := tx.QueryRow(ctx, `
@@ -140,9 +141,9 @@ func (service *Service) UpdateByID(ctx context.Context, id int64, payload *Updat
 			}
 		}
 
-		updates := helpers.StructToMap[core.IOptionalField](payload)
+		updates := helpers.StructToMap[handler.IOptionalField](payload)
 
-		return core.UpdateEntity(core.UpdateEntityByIdPayload{
+		return service.UpdateEntity(handler.UpdateEntityByIdPayload{
 			ID:       id,
 			Executor: tx,
 			Context:  ctx,
@@ -152,8 +153,8 @@ func (service *Service) UpdateByID(ctx context.Context, id int64, payload *Updat
 	})
 }
 
-func (service *Service) DeleteByID(ctx context.Context, id int64) error {
-	_, err := service.Pool.Query(ctx, `
+func (s *Service) DeleteByID(ctx context.Context, id int64) error {
+	_, err := s.Pool.Query(ctx, `
 		delete from cockpits where id = $1
 	`, id)
 

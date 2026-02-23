@@ -1,7 +1,8 @@
-package core
+package service
 
 import (
 	"fmt"
+	"performance_tracker_v2_be/core/handler"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -10,7 +11,7 @@ import (
 func ApplyFilters(
 	queryBuilder *strings.Builder,
 	filters map[string][]string,
-	filterRules map[string]FilterRule,
+	filterRules map[string]handler.FilterRule,
 	args *[]interface{},
 	argCounter *int,
 ) {
@@ -53,7 +54,7 @@ func ApplyFilters(
 	}
 }
 
-func GetEntityList(payload GetEntityListPayload) (pgx.Rows, error) {
+func GetEntityList(payload handler.GetEntityListPayload) (pgx.Rows, error) {
 	var queryBuilder strings.Builder
 	queryBuilder.WriteString(`SELECT `)
 	queryBuilder.WriteString(strings.Join(payload.SelectFields, ", "))
@@ -79,7 +80,7 @@ func GetEntityList(payload GetEntityListPayload) (pgx.Rows, error) {
 	return payload.Pool.Query(payload.Context, queryBuilder.String(), args...)
 }
 
-func GetEntityCount(payload GetEntityCountPayload) (int64, error) {
+func GetEntityCount(payload handler.GetEntityCountPayload) (int64, error) {
 	var queryBuilder strings.Builder
 	queryBuilder.WriteString(`SELECT COUNT(*) as count FROM ` + payload.TableName)
 
@@ -99,7 +100,7 @@ func GetEntityCount(payload GetEntityCountPayload) (int64, error) {
 	return count, nil
 }
 
-func GetUpdateQueryArgs(updates map[string]IOptionalField) (string, []interface{}, int) {
+func GetUpdateQueryArgs(updates map[string]handler.IOptionalField) (string, []interface{}, int) {
 	var setClauses []string
 	var args []interface{}
 	argID := 1
@@ -123,7 +124,7 @@ func GetUpdateQueryArgs(updates map[string]IOptionalField) (string, []interface{
 	return strings.Join(setClauses, ", "), args, argID
 }
 
-func UpdateEntity(payload UpdateEntityByIdPayload) error {
+func UpdateEntity(payload handler.UpdateEntityByIdPayload) error {
 	clauses, args, argID := GetUpdateQueryArgs(payload.Updates)
 
 	if len(clauses) == 0 {

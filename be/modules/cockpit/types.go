@@ -1,7 +1,7 @@
 package cockpit
 
 import (
-	"performance_tracker_v2_be/core"
+	"performance_tracker_v2_be/core/handler"
 	"performance_tracker_v2_be/db/main-db/models"
 )
 
@@ -25,6 +25,6 @@ type UpdateRequestInput struct {
 }
 
 type UpdateRequestParsed struct {
-	Name      core.OptionalBodyField[string] `json:"name"`
-	IsDefault core.OptionalBodyField[bool]   `json:"is_default"`
+	Name      handler.OptionalBodyField[string] `json:"name"`
+	IsDefault handler.OptionalBodyField[bool]   `json:"is_default"`
 }

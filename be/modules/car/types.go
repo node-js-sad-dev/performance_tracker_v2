@@ -1,7 +1,7 @@
 package car
 
 import (
-	"performance_tracker_v2_be/core"
+	"performance_tracker_v2_be/core/handler"
 	"performance_tracker_v2_be/db/main-db/models"
 )
 
@@ -28,8 +28,8 @@ type UpdateRequestInput struct {
 }
 
 type UpdateRequestParsed struct {
-	Name        core.OptionalBodyField[string] `json:"name"`
-	Description core.OptionalBodyField[string] `json:"description"`
+	Name        handler.OptionalBodyField[string] `json:"name"`
+	Description handler.OptionalBodyField[string] `json:"description"`
 
-	Image core.OptionalBodyField[string] `json:"image"`
+	Image handler.OptionalBodyField[string] `json:"image"`
 }
