@@ -19,6 +19,7 @@ type Controller struct {
 //	@Param			limit		query		int		false	"Limit"
 //	@Param			sortBy		query		string	false	"Sort by"
 //	@Param			sortOrder	query		string	false	"Sort order"
+//	@Param			name		query		string	false	"Name filter (fuzzy)"
 //	@Success		200			{object}	core.SwaggerSuccessResponse[GetListResponse]
 //	@Router			/cockpit [get]
 func (controller *Controller) GetList(extraction *core.ExtractorResult[core.Empty, GetFilters, core.Empty]) *core.ActionFuncResponse {

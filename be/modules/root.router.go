@@ -4,6 +4,7 @@ import (
 	"performance_tracker_v2_be/config"
 	"performance_tracker_v2_be/modules/car"
 	"performance_tracker_v2_be/modules/cockpit"
+	"performance_tracker_v2_be/modules/game"
 	"performance_tracker_v2_be/modules/lap"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,10 @@ func RootRouter(config *config.Config, pool *pgxpool.Pool, app *gin.Engine) {
 
 	// call global middlewares here before routers
 
+	// routers
+
 	car.Router(config, pool, rootRouterGroup)
 	cockpit.Router(config, pool, rootRouterGroup)
 	lap.Router(config, pool, rootRouterGroup)
+	game.Router(config, pool, rootRouterGroup)
 }
