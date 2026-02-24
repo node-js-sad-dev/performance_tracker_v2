@@ -37,35 +37,22 @@ func CommonErrorResponse(status int, errorMessage string) *handler.ActionFuncRes
 }
 
 func NotFoundErrorResponse(entityName string) *handler.ActionFuncResponse {
-	return &handler.ActionFuncResponse{
-		Status: 404,
-		Data:   nil,
-		Error:  errors.New(entityName + " not found"),
-	}
+	return CommonErrorResponse(404, entityName+" not found")
 }
 
 func DbErrorResponse(err error) *handler.ActionFuncResponse {
 	if errors.Is(err, sql.ErrNoRows) {
-		return &handler.ActionFuncResponse{
-			Status: 404,
-			Error:  errors.New("record not found"),
-		}
+		return CommonErrorResponse(404, "record not found")
 	}
 
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		switch pgErr.Code {
 		case "23505":
-			return &handler.ActionFuncResponse{
-				Status: 400,
-				Error:  errors.New("duplicate record"),
-			}
+			return CommonErrorResponse(409, pgErr.Message)
 		}
 	}
 
 	slog.Error("Database error: %v", err)
-	return &handler.ActionFuncResponse{
-		Status: 500,
-		Error:  errors.New("internal server error"),
-	}
+	return CommonErrorResponse(500, "Database error")
 }
