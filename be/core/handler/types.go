@@ -75,6 +75,5 @@ type ExtractorResult[Body any, Query any, Params any] struct {
 	Body        *Body
 	Headers     *map[string]string
 	Config      *config.Config
-	Pool        *pgxpool.Pool
 	Context     context.Context
 }

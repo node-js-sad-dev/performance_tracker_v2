@@ -15,6 +15,6 @@ func Router(config *config.Config, pool *pgxpool.Pool, router *gin.RouterGroup) 
 
 	lapGroup := router.Group("/lap")
 	{
-		lapGroup.GET("/", handler.Handler(config, pool, controller.GetList))
+		lapGroup.GET("/", handler.Handler(config, controller.GetList))
 	}
 }

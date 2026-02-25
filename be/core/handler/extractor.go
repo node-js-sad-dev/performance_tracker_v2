@@ -5,14 +5,13 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func Extract[
 	Body any,
 	Query any,
 	Params any,
-](config *config.Config, pool *pgxpool.Pool, c *gin.Context) (*ExtractorResult[Body, Query, Params], error) {
+](config *config.Config, c *gin.Context) (*ExtractorResult[Body, Query, Params], error) {
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
@@ -63,5 +62,6 @@ func Extract[
 		Body:        body,
 		Headers:     &headers,
 		Context:     c.Request.Context(),
+		Config:      config,
 	}, nil
 }
