@@ -66,19 +66,3 @@ Database entities:
    name  
    createdAt  
    image (optional) - just so end page will look better
-
-8. IDEA - track not only laps, but races too
-Add new table
-Races  
-id  
-createdAt  
-carId  
-trackId  
-gameId  
-wheelId  
-cockpitId  
-pedalsId  
-gearboxId  
-fastestLapTime  
-raceTime  
-    
