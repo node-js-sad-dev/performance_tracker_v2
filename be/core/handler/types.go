@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"mime/multipart"
 	"performance_tracker_v2_be/config"
 
 	"github.com/jackc/pgx/v5/pgconn"
@@ -76,4 +77,5 @@ type ExtractorResult[Body any, Query any, Params any] struct {
 	Headers     *map[string]string
 	Config      *config.Config
 	Context     context.Context
+	Files       []*multipart.FileHeader
 }

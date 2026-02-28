@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"mime/multipart"
 	"performance_tracker_v2_be/config"
 	"strconv"
 
@@ -48,9 +49,30 @@ func Extract[
 	}
 
 	body := new(Body)
+	var files []*multipart.FileHeader
+
 	if c.Request.ContentLength > 0 {
-		if err := c.ShouldBindJSON(body); err != nil {
-			return nil, err
+		contentType := c.ContentType()
+
+		switch contentType {
+		case "application/json":
+			if err := c.ShouldBindJSON(body); err != nil {
+				return nil, err
+			}
+
+		case "multipart/form-data", "application/x-www-form-urlencoded":
+			if err := c.ShouldBind(body); err != nil {
+				return nil, err
+			}
+
+			if contentType == "multipart/form-data" {
+				form, err := c.MultipartForm()
+				if err == nil && form != nil {
+					for _, fileHeaders := range form.File {
+						files = append(files, fileHeaders...)
+					}
+				}
+			}
 		}
 	}
 
@@ -63,5 +85,6 @@ func Extract[
 		Headers:     &headers,
 		Context:     c.Request.Context(),
 		Config:      config,
+		Files:       files,
 	}, nil
 }
