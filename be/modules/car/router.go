@@ -20,5 +20,7 @@ func Router(config *config.Config, pool *pgxpool.Pool, router *gin.RouterGroup) 
 		group.DELETE("/:id", handler.Handler(config, controller.DeleteByID))
 		group.GET("/", handler.Handler(config, controller.GetList))
 		group.POST("/", handler.Handler(config, controller.Create))
+		// @todo -> investigate how it should be done correctly
+		group.POST("", handler.Handler(config, controller.Create))
 	}
 }

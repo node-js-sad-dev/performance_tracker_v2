@@ -91,7 +91,7 @@ func (controller *Controller) GetByID(extraction *handler.ExtractorResult[handle
 //	@Param			id		path		int				true	"Game ID"
 //	@Param			game	body		UpdateRequestInput	true	"Game fields to update"
 //	@Success		200	{object}	swagger.SuccessResponse[models.Game]
-//	@Router			/game/{id} [put]
+//	@Router			/game/{id} [patch]
 func (controller *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateRequestParsed, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
 	err := controller.Service.UpdateByID(extraction.Context, extraction.Params.ID, extraction.Body)
 	if err != nil {

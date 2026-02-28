@@ -49,7 +49,7 @@ func Extract[
 	}
 
 	body := new(Body)
-	var files []*multipart.FileHeader
+	var files map[string][]*multipart.FileHeader
 
 	if c.Request.ContentLength > 0 {
 		contentType := c.ContentType()
@@ -68,9 +68,7 @@ func Extract[
 			if contentType == "multipart/form-data" {
 				form, err := c.MultipartForm()
 				if err == nil && form != nil {
-					for _, fileHeaders := range form.File {
-						files = append(files, fileHeaders...)
-					}
+					files = form.File
 				}
 			}
 		}

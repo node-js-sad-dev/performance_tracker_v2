@@ -2,6 +2,7 @@
 
 be/config/.env
 be/docs
+be/uploads/
 
 fe/node_modules
 fe/.vscode

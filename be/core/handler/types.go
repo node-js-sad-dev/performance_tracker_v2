@@ -77,5 +77,5 @@ type ExtractorResult[Body any, Query any, Params any] struct {
 	Headers     *map[string]string
 	Config      *config.Config
 	Context     context.Context
-	Files       []*multipart.FileHeader
+	Files       map[string][]*multipart.FileHeader
 }

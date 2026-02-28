@@ -1,6 +1,7 @@
 package car
 
 import (
+	"performance_tracker_v2_be/core/files"
 	"performance_tracker_v2_be/core/handler"
 	"performance_tracker_v2_be/core/responses"
 
@@ -40,23 +41,44 @@ func (c *Controller) GetList(extraction *handler.ExtractorResult[handler.Empty, 
 	})
 }
 
-// Create @Summary Create car
+// Create @Summary      Create car
 //
-//	@Description	Create a new car
-//	@Tags			Car
-//	@Accept			json
-//	@Produce		json
-//	@Param			car	body		CreateRequest	true	"Car to create"
-//	@Success		200	{object}	swagger.SuccessResponse[models.Car]
-//	@Router			/car [post]
+// @Description  Create a new car with an image and details
+// @Tags         Car
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file         formData  file    true  "Car image file"
+// @Param        name         formData  string  true  "Name of the car"
+// @Param        description  formData  string  false "Detailed car description"
+// @Success      200  {object}  swagger.SuccessResponse[models.Car]
+// @Router       /car [post]
 func (c *Controller) Create(extraction *handler.ExtractorResult[CreateRequest, handler.Empty, handler.Empty]) *handler.ActionFuncResponse {
-	carID, err := c.Service.Create(extraction.Context, extraction.Body)
+	carImage, err := files.GetFileInfoFromExtraction("file", extraction.Files)
+
+	if err != nil {
+		return responses.CommonErrorResponse(500, err.Error())
+	}
+
+	if carImage == nil {
+		return responses.CommonErrorResponse(400, "file is required")
+	}
+
+	filePath, err := files.SaveFile(carImage)
+	if err != nil {
+		return responses.CommonErrorResponse(500, err.Error())
+	}
+
+	carId, err := c.Service.Create(extraction.Context, &CreateRequestParsed{
+		Name:        extraction.Body.Name,
+		Description: extraction.Body.Description,
+		Image:       filePath,
+	})
 
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
 
-	car, err := c.Service.GetByID(extraction.Context, carID)
+	car, err := c.Service.GetByID(extraction.Context, carId)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}

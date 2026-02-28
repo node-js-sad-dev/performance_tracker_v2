@@ -23,7 +23,7 @@ type Controller struct {
 //	@Param			sortOrder	query		string	false	"Sort order"
 //	@Param			name		query		string	false	"Name filter (fuzzy)"
 //	@Success		200			{object}	swagger.SuccessResponse[GetListResponse]
-//	@Router			pedals [get]
+//	@Router			/pedals [get]
 func (controller *Controller) GetList(extraction *handler.ExtractorResult[handler.Empty, GetFilters, handler.Empty]) *handler.ActionFuncResponse {
 	pedals, err := controller.Service.GetList(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
 	if err != nil {
@@ -48,8 +48,8 @@ func (controller *Controller) GetList(extraction *handler.ExtractorResult[handle
 //	@Accept			json
 //	@Produce		json
 //	@Param			pedal	body		CreateRequest	true	"Pedal to create"
-//	@Success		200	{object}	swagger.SuccessResponse[models.Pedal]
-//	@Router			pedals [post]
+//	@Success		200	{object}	swagger.SuccessResponse[models.Pedals]
+//	@Router			/pedals [post]
 func (controller *Controller) Create(extraction *handler.ExtractorResult[CreateRequest, handler.Empty, handler.Empty]) *handler.ActionFuncResponse {
 	pedalsId, err := controller.Service.Create(extraction.Context, extraction.Body)
 
@@ -71,8 +71,8 @@ func (controller *Controller) Create(extraction *handler.ExtractorResult[CreateR
 //	@Tags			Pedal
 //	@Produce		json
 //	@Param			id		path		int64	true	"Pedal ID"
-//	@Success		200	{object}	swagger.SuccessResponse[models.Pedal]
-//	@Router			pedals/{id} [get]
+//	@Success		200	{object}	swagger.SuccessResponse[models.Pedals]
+//	@Router			/pedals/{id} [get]
 func (controller *Controller) GetByID(extraction *handler.ExtractorResult[handler.Empty, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
 	pedals, err := controller.Service.GetByID(extraction.Context, extraction.Params.ID)
 	if err != nil {
@@ -89,9 +89,9 @@ func (controller *Controller) GetByID(extraction *handler.ExtractorResult[handle
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path		int64			true	"Pedal ID"
-//	@Param			pedal	body		UpdateRequest	true	"Pedal data to update"
+//	@Param			pedal	body		UpdateRequestParsed	true	"Pedal data to update"
 //	@Success		200	{object}	swagger.SuccessResponse[any]
-//	@Router			pedals/{id} [put]
+//	@Router			/pedals/{id} [patch]
 func (controller *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateRequestParsed, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
 	err := controller.Service.UpdateByID(extraction.Context, extraction.Params.ID, extraction.Body)
 	if err != nil {
@@ -108,7 +108,7 @@ func (controller *Controller) UpdateByID(extraction *handler.ExtractorResult[Upd
 //	@Produce		json
 //	@Param			id		path		int64	true	"Pedal ID"
 //	@Success		200	{object}	swagger.SuccessResponse[any]
-//	@Router			pedals/{id} [delete]
+//	@Router			/pedals/{id} [delete]
 func (controller *Controller) DeleteByID(extraction *handler.ExtractorResult[handler.Empty, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
 	pedals, err := controller.Service.GetByID(extraction.Context, extraction.Params.ID)
 

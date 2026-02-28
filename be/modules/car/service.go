@@ -82,7 +82,7 @@ func (s *Service) GetByID(ctx context.Context, id int64) (*models.Car, error) {
 	return &result, nil
 }
 
-func (s *Service) Create(ctx context.Context, payload *CreateRequest) (int64, error) {
+func (s *Service) Create(ctx context.Context, payload *CreateRequestParsed) (int64, error) {
 	result := s.Pool.QueryRow(ctx, `
 		INSERT INTO cars (name, image, description)
 		VALUES ($1, $2, $3) returning id

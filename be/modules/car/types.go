@@ -15,9 +15,14 @@ type GetListResponse struct {
 }
 
 type CreateRequest struct {
-	Name        string `json:"name" binding:"required"`
-	Description string `json:"description" binding:"required"`
-	Image       string `json:"image"`
+	Name        string `form:"name" binding:"required"`
+	Description string `form:"description" binding:"required"`
+}
+
+type CreateRequestParsed struct {
+	Name        string  `json:"name" binding:"required"`
+	Description string  `json:"description" binding:"required"`
+	Image       *string `json:"image"`
 }
 
 type UpdateRequestInput struct {
