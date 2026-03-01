@@ -46,3 +46,7 @@ func GetFileInfoFromExtraction(key string, extractionFiles map[string][]*multipa
 
 	return files[0], nil
 }
+
+func RemoveFile(fileName string) error {
+	return os.Remove(filepath.Join("uploads", fileName))
+}

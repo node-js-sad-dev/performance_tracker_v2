@@ -1,6 +1,7 @@
 package car
 
 import (
+	"log/slog"
 	"performance_tracker_v2_be/core/files"
 	"performance_tracker_v2_be/core/handler"
 	"performance_tracker_v2_be/core/responses"
@@ -124,25 +125,68 @@ func (c *Controller) GetByID(extraction *handler.ExtractorResult[handler.Empty, 
 //	@Success		200	{object}	swagger.SuccessResponse[handler.Empty]
 //	@Router			/car/{id} [patch]
 func (c *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateRequestParsed, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
-	if extraction.Body.Name.GetIsNull() == false && extraction.Body.Name.GetIsSet() == true {
+	carFromDB, err := c.Service.GetByID(extraction.Context, extraction.Params.ID)
+	if err != nil {
+		return responses.DbErrorResponse(err)
+	}
+	if carFromDB == nil {
+		return responses.NotFoundErrorResponse("car")
+	}
+
+	if !extraction.Body.Name.GetIsNull() && extraction.Body.Name.GetIsSet() {
 		carWithSameName, err := c.Service.GetByName(extraction.Context, extraction.Body.Name.GetValue(), &extraction.Params.ID)
 		if err != nil {
 			return responses.DbErrorResponse(err)
 		}
-
 		if carWithSameName != nil {
 			return responses.CommonErrorResponse(409, "car with this name already exists")
 		}
 	}
 
 	carImage, err := files.GetFileInfoFromExtraction("file", extraction.Files)
-
 	if err != nil {
 		return responses.CommonErrorResponse(500, err.Error())
 	}
 
-	if carImage != nil || (extraction.Body.Image.GetIsNull() == true && extraction.Body.Image.GetIsSet() == true) {
-		// @todo -> remove previous image, think how handle it when in case of error db will not be updated but image will be removed
+	var filePath *string
+	if carImage != nil {
+		filePath, err = files.SaveFile(carImage)
+		if err != nil {
+			return responses.CommonErrorResponse(500, err.Error())
+		}
+	}
+
+	clientRequestedImageRemoval := extraction.Body.Image.GetIsNull() && extraction.Body.Image.GetIsSet()
+	shouldRemoveOldImage := carFromDB.Image != nil && (carImage != nil || clientRequestedImageRemoval)
+
+	updateBody := &UpdateRequestParsed{
+		Name:        extraction.Body.Name,
+		Description: extraction.Body.Description,
+	}
+
+	if filePath != nil {
+		updateBody.Image = handler.OptionalBodyField[string]{
+			Value:  *filePath,
+			IsSet:  true,
+			IsNull: false,
+		}
+	} else {
+		updateBody.Image = extraction.Body.Image
+	}
+
+	err = c.Service.UpdateByID(extraction.Context, extraction.Params.ID, updateBody)
+	if err != nil {
+		if filePath != nil {
+			_ = files.RemoveFile(*filePath)
+		}
+		return responses.DbErrorResponse(err)
+	}
+
+	if shouldRemoveOldImage {
+		err := files.RemoveFile(*carFromDB.Image)
+		if err != nil {
+			slog.Error("Failed to remove old image on car update")
+		}
 	}
 
 	return responses.DefaultSuccessResponse()
