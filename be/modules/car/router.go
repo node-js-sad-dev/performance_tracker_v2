@@ -18,9 +18,8 @@ func Router(config *config.Config, pool *pgxpool.Pool, router *gin.RouterGroup) 
 		group.GET("/:id", handler.Handler(config, controller.GetByID))
 		group.PATCH("/:id", handler.Handler(config, controller.UpdateByID))
 		group.DELETE("/:id", handler.Handler(config, controller.DeleteByID))
-		group.GET("/", handler.Handler(config, controller.GetList))
-		group.POST("/", handler.Handler(config, controller.Create))
-		// @todo -> investigate how it should be done correctly
+		group.GET("", handler.Handler(config, controller.GetList))
 		group.POST("", handler.Handler(config, controller.Create))
+		// @todo -> investigate how it should be done correctly
 	}
 }

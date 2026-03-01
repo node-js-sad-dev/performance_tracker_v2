@@ -116,3 +116,25 @@ func (s *Service) DeleteByID(ctx context.Context, id int64) error {
 
 	return err
 }
+
+func (s *Service) GetByName(ctx context.Context, name string, idToSkip *int64) (*models.Car, error) {
+	query := `
+		SELECT id, name, image, description, created_at
+		FROM cars
+		WHERE name = $1
+	`
+
+	if idToSkip != nil {
+		query += " AND id != $2"
+	}
+
+	car := s.Pool.QueryRow(ctx, query, name, idToSkip)
+
+	var result models.Car
+
+	if err := car.Scan(&result.ID, &result.Name, &result.Image, &result.Description, &result.CreatedAt); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}

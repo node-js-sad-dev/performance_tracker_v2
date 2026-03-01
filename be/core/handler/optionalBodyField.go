@@ -19,7 +19,7 @@ type OptionalBodyField[T any] struct {
 
 func (f *OptionalBodyField[T]) GetIsSet() bool  { return f.IsSet }
 func (f *OptionalBodyField[T]) GetIsNull() bool { return f.IsNull }
-func (f *OptionalBodyField[T]) GetValue() any   { return f.Value }
+func (f *OptionalBodyField[T]) GetValue() T     { return f.Value }
 
 func (f *OptionalBodyField[T]) UnmarshalJSON(data []byte) error {
 	f.IsSet = true

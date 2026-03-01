@@ -53,6 +53,15 @@ func (c *Controller) GetList(extraction *handler.ExtractorResult[handler.Empty, 
 // @Success      200  {object}  swagger.SuccessResponse[models.Car]
 // @Router       /car [post]
 func (c *Controller) Create(extraction *handler.ExtractorResult[CreateRequest, handler.Empty, handler.Empty]) *handler.ActionFuncResponse {
+	carWithSameName, err := c.Service.GetByName(extraction.Context, extraction.Body.Name, nil)
+	if err != nil {
+		return responses.DbErrorResponse(err)
+	}
+
+	if carWithSameName != nil {
+		return responses.CommonErrorResponse(409, "car with this name already exists")
+	}
+
 	carImage, err := files.GetFileInfoFromExtraction("file", extraction.Files)
 
 	if err != nil {
@@ -115,18 +124,25 @@ func (c *Controller) GetByID(extraction *handler.ExtractorResult[handler.Empty, 
 //	@Success		200	{object}	swagger.SuccessResponse[handler.Empty]
 //	@Router			/car/{id} [patch]
 func (c *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateRequestParsed, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
-	car, err := c.Service.GetByID(extraction.Context, extraction.Params.ID)
+	if extraction.Body.Name.GetIsNull() == false && extraction.Body.Name.GetIsSet() == true {
+		carWithSameName, err := c.Service.GetByName(extraction.Context, extraction.Body.Name.GetValue(), &extraction.Params.ID)
+		if err != nil {
+			return responses.DbErrorResponse(err)
+		}
+
+		if carWithSameName != nil {
+			return responses.CommonErrorResponse(409, "car with this name already exists")
+		}
+	}
+
+	carImage, err := files.GetFileInfoFromExtraction("file", extraction.Files)
 
 	if err != nil {
-		return responses.DbErrorResponse(err)
+		return responses.CommonErrorResponse(500, err.Error())
 	}
 
-	if car == nil {
-		return responses.NotFoundErrorResponse("car")
-	}
-
-	if err := c.Service.UpdateByID(extraction.Context, extraction.Params.ID, extraction.Body); err != nil {
-		return responses.DbErrorResponse(err)
+	if carImage != nil || (extraction.Body.Image.GetIsNull() == true && extraction.Body.Image.GetIsSet() == true) {
+		// @todo -> remove previous image, think how handle it when in case of error db will not be updated but image will be removed
 	}
 
 	return responses.DefaultSuccessResponse()
