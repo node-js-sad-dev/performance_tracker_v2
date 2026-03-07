@@ -1,4 +1,4 @@
-.PHONY: run_fe run_be migrate-new be_swag_fmt
+.PHONY: run_fe run_be migrate-new migrate-down be_swag_fmt
 
 migrate-new:
 	cd be && migrate create -ext sql -dir ./db/main-db/migrations -seq $(name)
