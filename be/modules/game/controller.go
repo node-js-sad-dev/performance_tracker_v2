@@ -1,6 +1,7 @@
 package game
 
 import (
+	"performance_tracker_v2_be/core/files"
 	"performance_tracker_v2_be/core/handler"
 	"performance_tracker_v2_be/core/responses"
 
@@ -24,13 +25,13 @@ type Controller struct {
 //	@Param			name		query		string	false	"Name filter (fuzzy)"
 //	@Success		200			{object}	swagger.SuccessResponse[GetListResponse]
 //	@Router			/game [get]
-func (controller *Controller) GetList(extraction *handler.ExtractorResult[handler.Empty, GetFilters, handler.Empty]) *handler.ActionFuncResponse {
-	games, err := controller.Service.GetList(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
+func (c *Controller) GetList(extraction *handler.ExtractorResult[handler.Empty, GetFilters, handler.Empty]) *handler.ActionFuncResponse {
+	games, err := c.Service.GetList(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
 
-	totalCount, err := controller.Service.GetTotalCount(extraction.Context, extraction.QueryParams)
+	totalCount, err := c.Service.GetTotalCount(extraction.Context, extraction.QueryParams)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
@@ -45,19 +46,47 @@ func (controller *Controller) GetList(extraction *handler.ExtractorResult[handle
 //
 //	@Description	Create a new game
 //	@Tags			Game
-//	@Accept			json
+//	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			game	body		CreateRequest	true	"Game to create"
+//	@Param			file		formData	file	true	"Game image file"
+//	@Param			name		formData	string	true	"Name of the game"
 //	@Success		200		{object}	swagger.SuccessResponse[models.Game]
 //	@Router			/game [post]
-func (controller *Controller) Create(extraction *handler.ExtractorResult[CreateRequest, handler.Empty, handler.Empty]) *handler.ActionFuncResponse {
-	gameID, err := controller.Service.Create(extraction.Context, extraction.Body)
+func (c *Controller) Create(extraction *handler.ExtractorResult[CreateRequest, handler.Empty, handler.Empty]) *handler.ActionFuncResponse {
+	gameWithSameName, err := c.Service.GetByName(extraction.Context, extraction.Body.Name, nil)
+	if err != nil {
+		return responses.DbErrorResponse(err)
+	}
+
+	if gameWithSameName != nil {
+		return responses.CommonErrorResponse(409, "game with this name already exists")
+	}
+
+	gameImage, err := files.GetFileInfoFromExtraction("file", extraction.Files)
+
+	if err != nil {
+		return responses.CommonErrorResponse(500, err.Error())
+	}
+
+	if gameImage == nil {
+		return responses.CommonErrorResponse(400, "file is required")
+	}
+
+	filePath, err := files.SaveFile(gameImage)
+	if err != nil {
+		return responses.CommonErrorResponse(500, err.Error())
+	}
+
+	gameId, err := c.Service.Create(extraction.Context, &CreateRequestParsed{
+		Name:  extraction.Body.Name,
+		Image: filePath,
+	})
 
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
 
-	game, err := controller.Service.GetByID(extraction.Context, gameID)
+	game, err := c.Service.GetByID(extraction.Context, gameId)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
@@ -73,8 +102,8 @@ func (controller *Controller) Create(extraction *handler.ExtractorResult[CreateR
 //	@Param			id	path		int	true	"Game ID"
 //	@Success		200	{object}	swagger.SuccessResponse[models.Game]
 //	@Router			/game/{id} [get]
-func (controller *Controller) GetByID(extraction *handler.ExtractorResult[handler.Empty, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
-	game, err := controller.Service.GetByID(extraction.Context, extraction.Params.ID)
+func (c *Controller) GetByID(extraction *handler.ExtractorResult[handler.Empty, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
+	game, err := c.Service.GetByID(extraction.Context, extraction.Params.ID)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
@@ -86,14 +115,16 @@ func (controller *Controller) GetByID(extraction *handler.ExtractorResult[handle
 //
 //	@Description	Update a game by its ID
 //	@Tags			Game
-//	@Accept			json
 //	@Produce		json
-//	@Param			id		path		int					true	"Game ID"
-//	@Param			game	body		UpdateRequestInput	true	"Game fields to update"
+//	@Param			id			path		number	true	"Car ID"
+//	@Param			file		formData	file	false	"Car image file"
+//	@Param			name		formData	string	false	"Name of the car"
+//	@Param			description	formData	string	false	"Detailed car description"
+//	@Param			image		formData	string	false	"Image to update if file not passed"
 //	@Success		200		{object}	swagger.SuccessResponse[models.Game]
 //	@Router			/game/{id} [patch]
-func (controller *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateRequestParsed, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
-	err := controller.Service.UpdateByID(extraction.Context, extraction.Params.ID, extraction.Body)
+func (c *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateRequestParsed, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
+	err := c.Service.UpdateByID(extraction.Context, extraction.Params.ID, extraction.Body)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
@@ -109,8 +140,8 @@ func (controller *Controller) UpdateByID(extraction *handler.ExtractorResult[Upd
 //	@Param			id	path		int	true	"Game ID"
 //	@Success		200	{object}	swagger.SuccessResponse[handler.Empty]
 //	@Router			/game/{id} [delete]
-func (controller *Controller) DeleteByID(extraction *handler.ExtractorResult[handler.Empty, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
-	game, err := controller.Service.GetByID(extraction.Context, extraction.Params.ID)
+func (c *Controller) DeleteByID(extraction *handler.ExtractorResult[handler.Empty, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
+	game, err := c.Service.GetByID(extraction.Context, extraction.Params.ID)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
@@ -119,7 +150,7 @@ func (controller *Controller) DeleteByID(extraction *handler.ExtractorResult[han
 		return responses.NotFoundErrorResponse("game")
 	}
 
-	err = controller.Service.DeleteByID(extraction.Context, extraction.Params.ID)
+	err = c.Service.DeleteByID(extraction.Context, extraction.Params.ID)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}

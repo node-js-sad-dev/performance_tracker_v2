@@ -15,16 +15,15 @@ type GetListResponse struct {
 }
 
 type CreateRequest struct {
+	Name string `form:"name" binding:"required"`
+}
+
+type CreateRequestParsed struct {
 	Name  string  `json:"name" binding:"required"`
 	Image *string `json:"image"`
 }
 
-type UpdateRequestInput struct {
-	Name  *string `json:"name"`
-	Image *string `json:"image"`
-}
-
 type UpdateRequestParsed struct {
-	Name  handler.OptionalBodyField[string] `json:"name"`
-	Image handler.OptionalBodyField[string] `json:"image"`
+	Name  handler.OptionalBodyField[string] `form:"name" json:"name"`
+	Image handler.OptionalBodyField[string] `form:"image" json:"image"`
 }

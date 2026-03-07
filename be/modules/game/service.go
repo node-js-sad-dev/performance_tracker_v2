@@ -2,11 +2,13 @@ package game
 
 import (
 	"context"
+	"errors"
 	"performance_tracker_v2_be/core/handler"
 	"performance_tracker_v2_be/core/service"
 	"performance_tracker_v2_be/db/main-db/models"
 	"performance_tracker_v2_be/helpers"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -81,7 +83,7 @@ func (s *Service) GetByID(ctx context.Context, id int64) (*models.Game, error) {
 	return &result, nil
 }
 
-func (s *Service) Create(ctx context.Context, payload *CreateRequest) (int64, error) {
+func (s *Service) Create(ctx context.Context, payload *CreateRequestParsed) (int64, error) {
 	var id int64
 	err := s.Pool.QueryRow(ctx, `
 		INSERT INTO games (name, image)
@@ -115,4 +117,34 @@ func (s *Service) DeleteByID(ctx context.Context, id int64) error {
 	`, id)
 
 	return err
+}
+
+func (s *Service) GetByName(ctx context.Context, name string, idToSkip *int64) (*models.Game, error) {
+	query := `
+		SELECT id, name, image, created_at
+		FROM games
+		WHERE name = $1
+	`
+
+	args := []any{name}
+
+	if idToSkip != nil {
+		query += " AND id != $2"
+		args = append(args, *idToSkip)
+	}
+
+	row := s.Pool.QueryRow(ctx, query, args...)
+
+	var result models.Game
+
+	err := row.Scan(&result.ID, &result.Name, &result.Image, &result.CreatedAt)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return &result, nil
 }
