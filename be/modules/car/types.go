@@ -25,16 +25,9 @@ type CreateRequestParsed struct {
 	Image       *string `json:"image"`
 }
 
-type UpdateRequestInput struct {
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
-
-	Image *string `json:"image"`
-}
-
 type UpdateRequestParsed struct {
-	Name        handler.OptionalBodyField[string] `json:"name"`
-	Description handler.OptionalBodyField[string] `json:"description"`
+	Name        handler.OptionalBodyField[string] `form:"name" json:"name"`
+	Description handler.OptionalBodyField[string] `form:"description" json:"description"`
 
-	Image handler.OptionalBodyField[string] `json:"image"`
+	Image handler.OptionalBodyField[string] `form:"image" json:"image"`
 }

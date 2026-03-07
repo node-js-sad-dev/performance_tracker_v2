@@ -48,7 +48,7 @@ func (controller *Controller) GetList(extraction *handler.ExtractorResult[handle
 //	@Accept			json
 //	@Produce		json
 //	@Param			pedal	body		CreateRequest	true	"Pedal to create"
-//	@Success		200	{object}	swagger.SuccessResponse[models.Pedals]
+//	@Success		200		{object}	swagger.SuccessResponse[models.Pedals]
 //	@Router			/pedals [post]
 func (controller *Controller) Create(extraction *handler.ExtractorResult[CreateRequest, handler.Empty, handler.Empty]) *handler.ActionFuncResponse {
 	pedalsId, err := controller.Service.Create(extraction.Context, extraction.Body)
@@ -70,7 +70,7 @@ func (controller *Controller) Create(extraction *handler.ExtractorResult[CreateR
 //	@Description	Get pedals by ID
 //	@Tags			Pedal
 //	@Produce		json
-//	@Param			id		path		int64	true	"Pedal ID"
+//	@Param			id	path		int64	true	"Pedal ID"
 //	@Success		200	{object}	swagger.SuccessResponse[models.Pedals]
 //	@Router			/pedals/{id} [get]
 func (controller *Controller) GetByID(extraction *handler.ExtractorResult[handler.Empty, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
@@ -88,9 +88,9 @@ func (controller *Controller) GetByID(extraction *handler.ExtractorResult[handle
 //	@Tags			Pedal
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		int64			true	"Pedal ID"
+//	@Param			id		path		int64				true	"Pedal ID"
 //	@Param			pedal	body		UpdateRequestParsed	true	"Pedal data to update"
-//	@Success		200	{object}	swagger.SuccessResponse[any]
+//	@Success		200		{object}	swagger.SuccessResponse[any]
 //	@Router			/pedals/{id} [patch]
 func (controller *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateRequestParsed, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
 	err := controller.Service.UpdateByID(extraction.Context, extraction.Params.ID, extraction.Body)
@@ -106,7 +106,7 @@ func (controller *Controller) UpdateByID(extraction *handler.ExtractorResult[Upd
 //	@Description	Delete pedals by ID
 //	@Tags			Pedal
 //	@Produce		json
-//	@Param			id		path		int64	true	"Pedal ID"
+//	@Param			id	path		int64	true	"Pedal ID"
 //	@Success		200	{object}	swagger.SuccessResponse[any]
 //	@Router			/pedals/{id} [delete]
 func (controller *Controller) DeleteByID(extraction *handler.ExtractorResult[handler.Empty, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {

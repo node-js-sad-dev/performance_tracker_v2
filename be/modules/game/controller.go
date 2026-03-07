@@ -48,7 +48,7 @@ func (controller *Controller) GetList(extraction *handler.ExtractorResult[handle
 //	@Accept			json
 //	@Produce		json
 //	@Param			game	body		CreateRequest	true	"Game to create"
-//	@Success		200	{object}	swagger.SuccessResponse[models.Game]
+//	@Success		200		{object}	swagger.SuccessResponse[models.Game]
 //	@Router			/game [post]
 func (controller *Controller) Create(extraction *handler.ExtractorResult[CreateRequest, handler.Empty, handler.Empty]) *handler.ActionFuncResponse {
 	gameID, err := controller.Service.Create(extraction.Context, extraction.Body)
@@ -88,9 +88,9 @@ func (controller *Controller) GetByID(extraction *handler.ExtractorResult[handle
 //	@Tags			Game
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		int				true	"Game ID"
+//	@Param			id		path		int					true	"Game ID"
 //	@Param			game	body		UpdateRequestInput	true	"Game fields to update"
-//	@Success		200	{object}	swagger.SuccessResponse[models.Game]
+//	@Success		200		{object}	swagger.SuccessResponse[models.Game]
 //	@Router			/game/{id} [patch]
 func (controller *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateRequestParsed, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
 	err := controller.Service.UpdateByID(extraction.Context, extraction.Params.ID, extraction.Body)

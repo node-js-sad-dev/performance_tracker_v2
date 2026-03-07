@@ -6,14 +6,17 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/schema"
 )
+
+// Global decoder caches struct metadata for much better performance across requests
+var formDecoder = schema.NewDecoder()
 
 func Extract[
 	Body any,
 	Query any,
 	Params any,
 ](config *config.Config, c *gin.Context) (*ExtractorResult[Body, Query, Params], error) {
-
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
 		page = 1
@@ -61,14 +64,25 @@ func Extract[
 			}
 
 		case "multipart/form-data", "application/x-www-form-urlencoded":
-			if err := c.ShouldBind(body); err != nil {
-				return nil, err
-			}
 
 			if contentType == "multipart/form-data" {
 				form, err := c.MultipartForm()
-				if err == nil && form != nil {
-					files = form.File
+				if err != nil {
+					return nil, err
+				}
+
+				if err := formDecoder.Decode(body, form.Value); err != nil {
+					return nil, err
+				}
+
+				files = form.File
+			} else {
+				if err := c.Request.ParseForm(); err != nil {
+					return nil, err
+				}
+
+				if err := formDecoder.Decode(body, c.Request.PostForm); err != nil {
+					return nil, err
 				}
 			}
 		}

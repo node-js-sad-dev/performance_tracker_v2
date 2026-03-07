@@ -48,7 +48,7 @@ func (controller *Controller) GetList(extraction *handler.ExtractorResult[handle
 //	@Accept			json
 //	@Produce		json
 //	@Param			cockpit	body		CreateRequest	true	"Cockpit to create"
-//	@Success		200	{object}	swagger.SuccessResponse[models.Cockpit]
+//	@Success		200		{object}	swagger.SuccessResponse[models.Cockpit]
 //	@Router			/cockpit [post]
 func (controller *Controller) Create(extraction *handler.ExtractorResult[CreateRequest, handler.Empty, handler.Empty]) *handler.ActionFuncResponse {
 	cockpitID, err := controller.Service.Create(extraction.Context, extraction.Body)
@@ -70,7 +70,7 @@ func (controller *Controller) Create(extraction *handler.ExtractorResult[CreateR
 //	@Description	Get cockpit by ID
 //	@Tags			Cockpit
 //	@Produce		json
-//	@Param			id	path	int	true	"Cockpit ID"
+//	@Param			id	path		int	true	"Cockpit ID"
 //	@Success		200	{object}	swagger.SuccessResponse[models.Cockpit]
 //	@Router			/cockpit/{id} [get]
 func (controller *Controller) GetByID(extraction *handler.ExtractorResult[handler.Empty, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
@@ -88,9 +88,9 @@ func (controller *Controller) GetByID(extraction *handler.ExtractorResult[handle
 //	@Tags			Cockpit
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path	int				true	"Cockpit ID"
-//	@Param			cockpit	body	UpdateRequestInput	true	"Cockpit data to update"
-//	@Success		200	{object}	swagger.SuccessResponse[models.Cockpit]
+//	@Param			id		path		int					true	"Cockpit ID"
+//	@Param			cockpit	body		UpdateRequestInput	true	"Cockpit data to update"
+//	@Success		200		{object}	swagger.SuccessResponse[models.Cockpit]
 //	@Router			/cockpit/{id} [patch]
 func (controller *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateRequestParsed, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
 	err := controller.Service.UpdateByID(extraction.Context, extraction.Params.ID, extraction.Body)
@@ -106,7 +106,7 @@ func (controller *Controller) UpdateByID(extraction *handler.ExtractorResult[Upd
 //	@Description	Delete cockpit by ID
 //	@Tags			Cockpit
 //	@Produce		json
-//	@Param			id	path	int	true	"Cockpit ID"
+//	@Param			id	path		int	true	"Cockpit ID"
 //	@Success		200	{object}	swagger.SuccessResponse[handler.Empty]
 //	@Router			/cockpit/{id} [delete]
 func (controller *Controller) DeleteByID(extraction *handler.ExtractorResult[handler.Empty, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {

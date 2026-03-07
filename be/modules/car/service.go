@@ -2,11 +2,13 @@ package car
 
 import (
 	"context"
+	"errors"
 	"performance_tracker_v2_be/core/handler"
 	"performance_tracker_v2_be/core/service"
 	"performance_tracker_v2_be/db/main-db/models"
 	"performance_tracker_v2_be/helpers"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -124,15 +126,23 @@ func (s *Service) GetByName(ctx context.Context, name string, idToSkip *int64) (
 		WHERE name = $1
 	`
 
+	args := []any{name}
+
 	if idToSkip != nil {
 		query += " AND id != $2"
+		args = append(args, *idToSkip)
 	}
 
-	car := s.Pool.QueryRow(ctx, query, name, idToSkip)
+	row := s.Pool.QueryRow(ctx, query, args...)
 
 	var result models.Car
 
-	if err := car.Scan(&result.ID, &result.Name, &result.Image, &result.Description, &result.CreatedAt); err != nil {
+	err := row.Scan(&result.ID, &result.Name, &result.Image, &result.Description, &result.CreatedAt)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 

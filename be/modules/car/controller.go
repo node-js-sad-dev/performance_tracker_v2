@@ -23,6 +23,7 @@ type Controller struct {
 //	@Param			limit		query		int		false	"Limit"
 //	@Param			sortBy		query		string	false	"Sort by"
 //	@Param			sortOrder	query		string	false	"Sort order"
+//	@Param			name		query		string	false	"Name filter (fuzzy)"
 //	@Success		200			{object}	swagger.SuccessResponse[GetListResponse]
 //	@Router			/car [get]
 func (c *Controller) GetList(extraction *handler.ExtractorResult[handler.Empty, GetFilters, handler.Empty]) *handler.ActionFuncResponse {
@@ -44,15 +45,15 @@ func (c *Controller) GetList(extraction *handler.ExtractorResult[handler.Empty, 
 
 // Create @Summary      Create car
 //
-// @Description  Create a new car with an image and details
-// @Tags         Car
-// @Accept       multipart/form-data
-// @Produce      json
-// @Param        file         formData  file    true  "Car image file"
-// @Param        name         formData  string  true  "Name of the car"
-// @Param        description  formData  string  false "Detailed car description"
-// @Success      200  {object}  swagger.SuccessResponse[models.Car]
-// @Router       /car [post]
+//	@Description	Create a new car with an image and details
+//	@Tags			Car
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			file		formData	file	true	"Car image file"
+//	@Param			name		formData	string	true	"Name of the car"
+//	@Param			description	formData	string	false	"Detailed car description"
+//	@Success		200			{object}	swagger.SuccessResponse[models.Car]
+//	@Router			/car [post]
 func (c *Controller) Create(extraction *handler.ExtractorResult[CreateRequest, handler.Empty, handler.Empty]) *handler.ActionFuncResponse {
 	carWithSameName, err := c.Service.GetByName(extraction.Context, extraction.Body.Name, nil)
 	if err != nil {
@@ -118,11 +119,13 @@ func (c *Controller) GetByID(extraction *handler.ExtractorResult[handler.Empty, 
 //
 //	@Description	Update a car by its ID
 //	@Tags			Car
-//	@Accept			json
 //	@Produce		json
-//	@Param			id	path		string				true	"Car ID"
-//	@Param			car	body		UpdateRequestInput	true	"Car fields to update"
-//	@Success		200	{object}	swagger.SuccessResponse[handler.Empty]
+//	@Param			id			path		number	true	"Car ID"
+//	@Param			file		formData	file	false	"Car image file"
+//	@Param			name		formData	string	false	"Name of the car"
+//	@Param			description	formData	string	false	"Detailed car description"
+//	@Param			image		formData	string	false	"Image to update if file not passed"
+//	@Success		200			{object}	swagger.SuccessResponse[handler.Empty]
 //	@Router			/car/{id} [patch]
 func (c *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateRequestParsed, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
 	carFromDB, err := c.Service.GetByID(extraction.Context, extraction.Params.ID)
@@ -134,7 +137,8 @@ func (c *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateReques
 	}
 
 	if !extraction.Body.Name.GetIsNull() && extraction.Body.Name.GetIsSet() {
-		carWithSameName, err := c.Service.GetByName(extraction.Context, extraction.Body.Name.GetValue(), &extraction.Params.ID)
+		// cast to string is needed cause GetValue returns any for now and i dont know how to fix it(((
+		carWithSameName, err := c.Service.GetByName(extraction.Context, extraction.Body.Name.GetValue().(string), &extraction.Params.ID)
 		if err != nil {
 			return responses.DbErrorResponse(err)
 		}

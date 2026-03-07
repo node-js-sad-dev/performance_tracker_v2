@@ -3,6 +3,7 @@
 be/config/.env
 be/docs
 be/uploads/
+be/tmp
 
 fe/node_modules
 fe/.vscode

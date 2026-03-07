@@ -10,7 +10,7 @@ run_fe:
 	cd fe && npm run dev
 
 run_be:
-	cd be && swag init -g cmd/api/main.go --parseDependency --parseInternal && go run ./cmd/api
+	cd be && swag init -g cmd/api/main.go --parseDependency --parseInternal && air
 
 be_swag_fmt:
 	cd be && swag fmt
