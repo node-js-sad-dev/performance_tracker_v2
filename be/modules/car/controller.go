@@ -64,17 +64,7 @@ func (c *Controller) Create(extraction *handler.ExtractorResult[CreateRequest, h
 		return responses.CommonErrorResponse(409, "car with this name already exists")
 	}
 
-	carImage, err := files.GetFileInfoFromExtraction("file", extraction.Files)
-
-	if err != nil {
-		return responses.CommonErrorResponse(500, err.Error())
-	}
-
-	if carImage == nil {
-		return responses.CommonErrorResponse(400, "file is required")
-	}
-
-	filePath, err := files.SaveFile(carImage)
+	filePath, err := files.UploadFileAndGetLink("file", extraction.Files, false)
 	if err != nil {
 		return responses.CommonErrorResponse(500, err.Error())
 	}
@@ -147,21 +137,13 @@ func (c *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateReques
 		}
 	}
 
-	carImage, err := files.GetFileInfoFromExtraction("file", extraction.Files)
+	filePath, err := files.UploadFileAndGetLink("file", extraction.Files, false)
 	if err != nil {
 		return responses.CommonErrorResponse(500, err.Error())
 	}
 
-	var filePath *string
-	if carImage != nil {
-		filePath, err = files.SaveFile(carImage)
-		if err != nil {
-			return responses.CommonErrorResponse(500, err.Error())
-		}
-	}
-
 	clientRequestedImageRemoval := extraction.Body.Image.GetIsNull() && extraction.Body.Image.GetIsSet()
-	shouldRemoveOldImage := carFromDB.Image != nil && (carImage != nil || clientRequestedImageRemoval)
+	shouldRemoveOldImage := carFromDB.Image != nil && (filePath != nil || clientRequestedImageRemoval)
 
 	updateBody := &UpdateRequestParsed{
 		Name:        extraction.Body.Name,

@@ -1,6 +1,7 @@
 package files
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -49,4 +50,26 @@ func GetFileInfoFromExtraction(key string, extractionFiles map[string][]*multipa
 
 func RemoveFile(fileName string) error {
 	return os.Remove(filepath.Join("uploads", fileName))
+}
+
+func UploadFileAndGetLink(fileKey string, files map[string][]*multipart.FileHeader, isRequired bool) (*string, error) {
+	file, err := GetFileInfoFromExtraction(fileKey, files)
+	if err != nil {
+		return nil, err
+	}
+
+	if file == nil && isRequired {
+		return nil, errors.New("File with key '" + fileKey + "' is required")
+	}
+
+	if file == nil {
+		return nil, nil
+	}
+
+	filePath, err := SaveFile(file)
+	if err != nil {
+		return nil, errors.New("Failed to save file: " + err.Error())
+	}
+
+	return filePath, nil
 }
