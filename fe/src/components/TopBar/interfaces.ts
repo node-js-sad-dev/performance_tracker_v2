@@ -1,5 +1,5 @@
-import type { Entity } from '../../core/enums.ts';
-
-export interface Props {
-  entity: Entity;
+﻿export interface Props {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
 }

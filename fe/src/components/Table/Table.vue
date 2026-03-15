@@ -1,149 +1,142 @@
-<script setup lang="ts">
-import TableRow from "../TableRow/TableRow.vue";
+﻿<script setup lang="ts">
+import TableRow from '../TableRow/TableRow.vue';
+import type { Props } from './interfaces.ts';
+
+const props = defineProps<Props>();
+
+const emit = defineEmits<{
+  (event: 'sort', column: string): void;
+  (event: 'view', item: Record<string, unknown>): void;
+  (event: 'edit', item: Record<string, unknown>): void;
+  (event: 'delete', item: Record<string, unknown>): void;
+}>();
+
+function getSortIndicator(columnSortBy?: string) {
+  if (!columnSortBy || columnSortBy !== props.sortBy) {
+    return '';
+  }
+
+  return props.sortOrder === 'asc' ? '^' : 'v';
+}
 </script>
 
 <template>
-  <table class="data-table">
-    <thead>
-    <tr>
-      <th>Date</th>
-      <th>Game</th>
-      <th>Car</th>
-      <th>Track</th>
-      <th>Time</th>
-      <th>Clear?</th>
-      <th class="text-right">Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-      <td class="mono">2023-10-27</td>
-      <td>Assetto Corsa</td>
-      <td>Porsche 911 GT3</td>
-      <td>Nürburgring</td>
-      <td class="mono time-highlight">
-        1:54.302
-      </td>
-      <td>
-        <span class="badge success">Yes</span>
-      </td>
-      <td class="actions-cell">
-        <button
-            class="icon-btn edit"
-            title="Edit"
-        >
-          ✎
-        </button>
-        <button
-            class="icon-btn delete"
-            title="Delete"
-        >
-          🗑
-        </button>
-        <button
-            class="icon-btn detail"
-            title="Details"
-        >
-          👁
-        </button>
-      </td>
-    </tr>
-
-    <TableRow></TableRow>
-
-    </tbody>
-  </table>
+  <div class="table-shell">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th v-for="column in props.columns" :key="column.key" :class="column.align">
+            <button
+              v-if="column.sortBy"
+              class="sort-button"
+              type="button"
+              @click="emit('sort', column.sortBy)">
+              <span>{{ column.label }}</span>
+              <span class="sort-indicator">{{ getSortIndicator(column.sortBy) }}</span>
+            </button>
+            <span v-else>{{ column.label }}</span>
+          </th>
+          <th class="right-align">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-if="props.loading">
+          <td :colspan="props.columns.length + 1" class="table-state loading-state">Loading data...</td>
+        </tr>
+        <tr v-else-if="props.rows.length === 0">
+          <td :colspan="props.columns.length + 1" class="table-state empty-state">{{ props.emptyLabel }}</td>
+        </tr>
+        <TableRow
+          v-for="item in props.rows"
+          v-else
+          :key="String(item.id ?? JSON.stringify(item))"
+          :item="item"
+          :columns="props.columns"
+          @view="emit('view', item)"
+          @edit="emit('edit', item)"
+          @delete="emit('delete', item)" />
+      </tbody>
+    </table>
+  </div>
 </template>
 
-<style>
+<style scoped>
+.table-shell {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  padding: 0 0.75rem 0.75rem;
+}
+
 .data-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 0.75rem;
+}
+
+th {
+  padding: 0.95rem 1.15rem 0.6rem;
   text-align: left;
-}
-
-.data-table th,
-.data-table td {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.data-table th {
-  background-color: rgba(255, 255, 255, 0.03);
+  vertical-align: middle;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--text-muted);
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.data-table tbody tr:hover {
-  background-color: var(--bg-hover);
-}
-
-.data-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-/* Table Specific Typography */
-.mono {
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-}
-
-.time-highlight {
-  color: var(--accent);
-  font-weight: bold;
-}
-
-.text-right {
-  text-align: right;
-}
-
-/* Status Badges */
-.badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.badge.success {
-  background: rgba(0, 200, 81, 0.2);
-  color: var(--success);
-}
-
-.badge.danger {
-  background: rgba(255, 68, 68, 0.2);
-  color: var(--danger);
-}
-
-/* Actions */
-.actions-cell {
-  text-align: right;
   white-space: nowrap;
 }
 
-.icon-btn {
-  background: none;
+thead tr th {
+  border-bottom: 1px solid var(--border);
+}
+
+.right-align,
+th.right-align {
+  text-align: right;
+}
+
+th.center {
+  text-align: center;
+}
+
+th.right {
+  text-align: right;
+}
+
+.sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: inherit;
+  font: inherit;
   cursor: pointer;
-  font-size: 1.1rem;
-  margin-left: 8px;
-  padding: 4px;
-  transition: color 0.2s;
+  text-transform: inherit;
+  letter-spacing: inherit;
 }
 
-.icon-btn:hover {
-  color: var(--text-main);
-}
-
-.icon-btn.edit:hover {
+.sort-indicator {
   color: var(--accent);
+  min-width: 0.7rem;
 }
 
-.icon-btn.delete:hover {
-  color: var(--danger);
+.table-state {
+  padding: 1.35rem 1.25rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+}
+
+@media (max-width: 900px) {
+  .table-shell {
+    padding-bottom: 0.5rem;
+  }
+
+  .data-table {
+    min-width: 780px;
+  }
 }
 </style>

@@ -6,6 +6,7 @@ import (
 	"performance_tracker_v2_be/db"
 	main_db "performance_tracker_v2_be/db/main-db"
 	"performance_tracker_v2_be/docs"
+	"performance_tracker_v2_be/middlewares"
 	"performance_tracker_v2_be/modules"
 
 	"github.com/gin-gonic/gin"
@@ -45,6 +46,7 @@ func main() {
 	}
 
 	app := gin.Default()
+	app.Use(middlewares.CORSMiddleware(cfg))
 
 	app.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

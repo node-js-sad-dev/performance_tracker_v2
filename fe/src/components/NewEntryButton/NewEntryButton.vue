@@ -1,33 +1,44 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
+import { computed } from 'vue';
+import { RouterLink, type RouteLocationRaw } from 'vue-router';
 
+const props = withDefaults(
+  defineProps<{
+    label: string;
+    to?: RouteLocationRaw;
+    variant?: 'primary' | 'secondary' | 'danger';
+    type?: 'button' | 'submit';
+    disabled?: boolean;
+  }>(),
+  {
+    variant: 'primary',
+    type: 'button',
+    disabled: false,
+  }
+);
+
+const emit = defineEmits<{
+  (event: 'click'): void;
+}>();
+
+const classes = computed(() => ['btn', `btn-${props.variant}`]);
+
+function handleClick() {
+  emit('click');
+}
 </script>
 
 <template>
-  <button class="btn btn-primary">+ Log New Lap</button>
+  <RouterLink v-if="props.to" :to="props.to" :class="classes">
+    {{ props.label }}
+  </RouterLink>
+
+  <button
+    v-else
+    :type="props.type"
+    :class="classes"
+    :disabled="props.disabled"
+    @click="handleClick">
+    {{ props.label }}
+  </button>
 </template>
-
-<style>
-.btn {
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: opacity 0.2s;
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: var(--bg-dark);
-}
-
-.btn-primary:hover {
-  background: var(--accent-hover);
-}
-
-.btn-secondary {
-  background: var(--bg-hover);
-  color: var(--text-main);
-}
-</style>

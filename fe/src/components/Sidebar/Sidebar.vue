@@ -1,20 +1,12 @@
-<script setup lang="ts">
-import { Entity } from '../../core/enums.ts';
+﻿<script setup lang="ts">
+import { RouterLink } from 'vue-router';
 
-const entity = defineModel<Entity>({ required: true });
+import { NAV_ITEMS } from '../../core/consts.ts';
+import type { Entity } from '../../core/enums.ts';
 
-const menuItems = [
-  { id: 'laps', label: 'Laps', icon: '⏱', entity: Entity.LAPS },
-  { id: 'cars', label: 'Cars', icon: '🏎', entity: Entity.CARS },
-  {
-    id: 'tracks',
-    label: 'Tracks',
-    icon: '🏁',
-    entity: Entity.TRACKS,
-  },
-  { id: 'games', label: 'Games', icon: '🎮', entity: Entity.GAMES },
-  { id: 'gear', label: 'Gear', icon: '⚙️', entity: Entity.GEAR },
-];
+const props = defineProps<{
+  entity: Entity;
+}>();
 </script>
 
 <template>
@@ -23,16 +15,16 @@ const menuItems = [
       <h2>Sim<span class="accent">Track</span></h2>
     </div>
 
-    <nav class="nav-menu">
-      <a
-        v-for="item in menuItems"
-        :key="item.id"
-        :href="`/${item.id}`"
+    <nav class="nav-menu" aria-label="Primary">
+      <RouterLink
+        v-for="item in NAV_ITEMS"
+        :key="item.label"
+        :to="item.to"
         class="nav-item"
-        :class="{ active: entity === item.id }"
-        @click.prevent="entity = item.entity">
-        <span class="icon">{{ item.icon }}</span> {{ item.label }}
-      </a>
+        :class="{ active: props.entity === item.entity }">
+        <span class="icon">{{ item.icon }}</span>
+        {{ item.label }}
+      </RouterLink>
     </nav>
 
     <div class="user-profile">
@@ -42,7 +34,7 @@ const menuItems = [
   </aside>
 </template>
 
-<style>
+<style scoped>
 .sidebar {
   background-color: var(--bg-panel);
   border-right: 1px solid var(--border);
@@ -113,5 +105,12 @@ const menuItems = [
   display: grid;
   place-items: center;
   font-weight: bold;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
 }
 </style>

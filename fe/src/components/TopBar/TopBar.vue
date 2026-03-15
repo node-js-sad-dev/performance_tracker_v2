@@ -1,30 +1,19 @@
-<script setup lang="ts">
-import NewEntryButton from '../NewEntryButton/NewEntryButton.vue';
-import { computed } from 'vue';
+﻿<script setup lang="ts">
 import type { Props } from './interfaces.ts';
-import { EntityConfig } from '../../core/consts.ts';
 
 const props = defineProps<Props>();
-
-const title = computed(
-  () => EntityConfig[props.entity].headerTitle ?? 'Telemetry'
-);
 </script>
 
 <template>
   <header class="top-bar">
-    <h1>{{ title }}</h1>
-    <div class="actions">
-      <NewEntryButton></NewEntryButton>
+    <div class="title-stack">
+      <p v-if="props.eyebrow" class="eyebrow">{{ props.eyebrow }}</p>
+      <h1>{{ props.title }}</h1>
+      <p v-if="props.subtitle" class="subtitle">{{ props.subtitle }}</p>
+    </div>
+
+    <div v-if="$slots.actions" class="actions">
+      <slot name="actions" />
     </div>
   </header>
 </template>
-
-<style>
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-</style>
