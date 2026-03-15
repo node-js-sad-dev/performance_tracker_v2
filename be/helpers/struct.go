@@ -1,6 +1,9 @@
 package helpers
 
-import "reflect"
+import (
+	"reflect"
+	"strings"
+)
 
 // StructToMap have a strong feeling it is not the best approach but good idea to test
 func StructToMap[Result any](input any) map[string]Result {
@@ -33,12 +36,15 @@ func StructToMap[Result any](input any) map[string]Result {
 			continue
 		}
 
-		key := field.Tag.Get("json")
-
-		if key == "-" {
+		jsonTag := field.Tag.Get("json")
+		if jsonTag == "-" {
 			continue
 		}
 
+		key := getTagName(jsonTag)
+		if key == "" {
+			key = getTagName(field.Tag.Get("form"))
+		}
 		if key == "" {
 			key = field.Name
 		}
@@ -59,4 +65,12 @@ func StructToMap[Result any](input any) map[string]Result {
 	}
 
 	return result
+}
+
+func getTagName(tag string) string {
+	if tag == "" {
+		return ""
+	}
+
+	return strings.Split(tag, ",")[0]
 }

@@ -1,4 +1,4 @@
-package game
+package track
 
 import (
 	"log/slog"
@@ -14,10 +14,10 @@ type Controller struct {
 	Service *Service
 }
 
-// GetList @Summary Get games
+// GetList @Summary Get tracks
 //
-//	@Description	Get all games
-//	@Tags			Game
+//	@Description	Get all tracks
+//	@Tags			Track
 //	@Produce		json
 //	@Param			page		query		int		false	"Page"
 //	@Param			limit		query		int		false	"Limit"
@@ -25,9 +25,9 @@ type Controller struct {
 //	@Param			sortOrder	query		string	false	"Sort order"
 //	@Param			name		query		string	false	"Name filter (fuzzy)"
 //	@Success		200			{object}	swagger.SuccessResponse[GetListResponse]
-//	@Router			/game [get]
+//	@Router			/track [get]
 func (c *Controller) GetList(extraction *handler.ExtractorResult[handler.Empty, GetFilters, handler.Empty]) *handler.ActionFuncResponse {
-	games, err := c.Service.GetList(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
+	tracks, err := c.Service.GetList(extraction.Context, extraction.Pagination, extraction.Sort, extraction.QueryParams)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
@@ -38,48 +38,41 @@ func (c *Controller) GetList(extraction *handler.ExtractorResult[handler.Empty, 
 	}
 
 	return responses.SuccessResponse(GetListResponse{
-		Games:      games,
+		Tracks:     tracks,
 		TotalCount: totalCount,
 	})
 }
 
-// Create @Summary Create game
+// Create @Summary Create track
 //
-//	@Description	Create a new game
-//	@Tags			Game
+//	@Description	Create a new track with an image and details
+//	@Tags			Track
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			file		formData	file	true	"Game image file"
-//	@Param			name		formData	string	true	"Name of the game"
-//	@Success		200			{object}	swagger.SuccessResponse[models.Game]
-//	@Router			/game [post]
+//	@Param			file		formData	file	false	"Track image file"
+//	@Param			name		formData	string	true	"Name of the track"
+//	@Param			description	formData	string	true	"Detailed track description"
+//	@Success		200			{object}	swagger.SuccessResponse[models.Track]
+//	@Router			/track [post]
 func (c *Controller) Create(extraction *handler.ExtractorResult[CreateRequest, handler.Empty, handler.Empty]) *handler.ActionFuncResponse {
-	gameWithSameName, err := c.Service.GetByName(extraction.Context, extraction.Body.Name, nil)
+	trackWithSameName, err := c.Service.GetByName(extraction.Context, extraction.Body.Name, nil)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
 
-	if gameWithSameName != nil {
-		return responses.CommonErrorResponse(409, "game with this name already exists")
+	if trackWithSameName != nil {
+		return responses.CommonErrorResponse(409, "track with this name already exists")
 	}
 
-	gameImage, err := files.GetFileInfoFromExtraction("file", extraction.Files)
+	filePath, err := files.UploadFileAndGetLink("file", extraction.Files, false)
 	if err != nil {
 		return responses.CommonErrorResponse(500, err.Error())
 	}
 
-	if gameImage == nil {
-		return responses.CommonErrorResponse(400, "file is required")
-	}
-
-	filePath, err := files.SaveFile(gameImage)
-	if err != nil {
-		return responses.CommonErrorResponse(500, err.Error())
-	}
-
-	gameID, err := c.Service.Create(extraction.Context, &CreateRequestParsed{
-		Name:  extraction.Body.Name,
-		Image: filePath,
+	trackID, err := c.Service.Create(extraction.Context, &CreateRequestParsed{
+		Name:        extraction.Body.Name,
+		Description: extraction.Body.Description,
+		Image:       filePath,
 	})
 	if err != nil {
 		if filePath != nil {
@@ -88,60 +81,61 @@ func (c *Controller) Create(extraction *handler.ExtractorResult[CreateRequest, h
 		return responses.DbErrorResponse(err)
 	}
 
-	game, err := c.Service.GetByID(extraction.Context, gameID)
+	track, err := c.Service.GetByID(extraction.Context, trackID)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
 
-	return responses.SuccessResponse(game)
+	return responses.SuccessResponse(track)
 }
 
-// GetByID @Summary Get game by ID
+// GetByID @Summary Get track by ID
 //
-//	@Description	Get a game by its ID
-//	@Tags			Game
+//	@Description	Get a track by its ID
+//	@Tags			Track
 //	@Produce		json
-//	@Param			id	path		int	true	"Game ID"
-//	@Success		200	{object}	swagger.SuccessResponse[models.Game]
-//	@Router			/game/{id} [get]
+//	@Param			id	path		string	true	"Track ID"
+//	@Success		200	{object}	swagger.SuccessResponse[models.Track]
+//	@Router			/track/{id} [get]
 func (c *Controller) GetByID(extraction *handler.ExtractorResult[handler.Empty, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
-	game, err := c.Service.GetByID(extraction.Context, extraction.Params.ID)
+	track, err := c.Service.GetByID(extraction.Context, extraction.Params.ID)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
 
-	return responses.SuccessResponse(game)
+	return responses.SuccessResponse(track)
 }
 
-// UpdateByID @Summary Update game by ID
+// UpdateByID @Summary Update track by ID
 //
-//	@Description	Update a game by its ID
-//	@Tags			Game
+//	@Description	Update a track by its ID
+//	@Tags			Track
 //	@Produce		json
-//	@Param			id			path		number	true	"Game ID"
-//	@Param			file		formData	file	false	"Game image file"
-//	@Param			name		formData	string	false	"Name of the game"
+//	@Param			id			path		number	true	"Track ID"
+//	@Param			file		formData	file	false	"Track image file"
+//	@Param			name		formData	string	false	"Name of the track"
+//	@Param			description	formData	string	false	"Detailed track description"
 //	@Param			image		formData	string	false	"Image to update if file not passed"
-//	@Success		200			{object}	swagger.SuccessResponse[models.Game]
-//	@Router			/game/{id} [patch]
+//	@Success		200			{object}	swagger.SuccessResponse[handler.Empty]
+//	@Router			/track/{id} [patch]
 func (c *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateRequestParsed, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
-	gameFromDB, err := c.Service.GetByID(extraction.Context, extraction.Params.ID)
+	trackFromDB, err := c.Service.GetByID(extraction.Context, extraction.Params.ID)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
 
-	if gameFromDB == nil {
-		return responses.NotFoundErrorResponse("game")
+	if trackFromDB == nil {
+		return responses.NotFoundErrorResponse("track")
 	}
 
 	if !extraction.Body.Name.GetIsNull() && extraction.Body.Name.GetIsSet() {
-		gameWithSameName, err := c.Service.GetByName(extraction.Context, extraction.Body.Name.GetValue().(string), &extraction.Params.ID)
+		trackWithSameName, err := c.Service.GetByName(extraction.Context, extraction.Body.Name.GetValue().(string), &extraction.Params.ID)
 		if err != nil {
 			return responses.DbErrorResponse(err)
 		}
 
-		if gameWithSameName != nil {
-			return responses.CommonErrorResponse(409, "game with this name already exists")
+		if trackWithSameName != nil {
+			return responses.CommonErrorResponse(409, "track with this name already exists")
 		}
 	}
 
@@ -151,10 +145,11 @@ func (c *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateReques
 	}
 
 	clientRequestedImageRemoval := extraction.Body.Image.GetIsNull() && extraction.Body.Image.GetIsSet()
-	shouldRemoveOldImage := gameFromDB.Image != nil && (filePath != nil || clientRequestedImageRemoval)
+	shouldRemoveOldImage := trackFromDB.Image != nil && (filePath != nil || clientRequestedImageRemoval)
 
 	updateBody := &UpdateRequestParsed{
-		Name: extraction.Body.Name,
+		Name:        extraction.Body.Name,
+		Description: extraction.Body.Description,
 	}
 
 	if filePath != nil {
@@ -176,34 +171,33 @@ func (c *Controller) UpdateByID(extraction *handler.ExtractorResult[UpdateReques
 	}
 
 	if shouldRemoveOldImage {
-		if err := files.RemoveFile(*gameFromDB.Image); err != nil {
-			slog.Error("Failed to remove old image on game update", "error", err)
+		if err := files.RemoveFile(*trackFromDB.Image); err != nil {
+			slog.Error("Failed to remove old image on track update", "error", err)
 		}
 	}
 
 	return responses.DefaultSuccessResponse()
 }
 
-// DeleteByID @Summary Delete game by ID
+// DeleteByID @Summary Delete track by ID
 //
-//	@Description	Delete a game by its ID
-//	@Tags			Game
+//	@Description	Delete a track by its ID
+//	@Tags			Track
 //	@Produce		json
-//	@Param			id	path		int	true	"Game ID"
+//	@Param			id	path		string	true	"Track ID"
 //	@Success		200	{object}	swagger.SuccessResponse[handler.Empty]
-//	@Router			/game/{id} [delete]
+//	@Router			/track/{id} [delete]
 func (c *Controller) DeleteByID(extraction *handler.ExtractorResult[handler.Empty, handler.Empty, handler.GetByIdParams]) *handler.ActionFuncResponse {
-	game, err := c.Service.GetByID(extraction.Context, extraction.Params.ID)
+	track, err := c.Service.GetByID(extraction.Context, extraction.Params.ID)
 	if err != nil {
 		return responses.DbErrorResponse(err)
 	}
 
-	if game == nil {
-		return responses.NotFoundErrorResponse("game")
+	if track == nil {
+		return responses.NotFoundErrorResponse("track")
 	}
 
-	err = c.Service.DeleteByID(extraction.Context, extraction.Params.ID)
-	if err != nil {
+	if err := c.Service.DeleteByID(extraction.Context, extraction.Params.ID); err != nil {
 		return responses.DbErrorResponse(err)
 	}
 

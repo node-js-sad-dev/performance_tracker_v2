@@ -154,7 +154,7 @@ func (s *Service) UpdateByID(ctx context.Context, id int64, payload *UpdateReque
 }
 
 func (s *Service) DeleteByID(ctx context.Context, id int64) error {
-	_, err := s.Pool.Query(ctx, `
+	_, err := s.Pool.Exec(ctx, `
 		delete from cockpits where id = $1
 	`, id)
 

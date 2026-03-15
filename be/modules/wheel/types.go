@@ -1,4 +1,4 @@
-package pedals
+package wheel
 
 import (
 	"performance_tracker_v2_be/core/handler"
@@ -10,18 +10,13 @@ type GetFilters struct {
 }
 
 type GetListResponse struct {
-	Pedals     []models.Pedals `json:"pedals"`
-	TotalCount int64           `json:"total_count"`
+	Wheels     []models.Wheel `json:"wheels"`
+	TotalCount int64          `json:"total_count"`
 }
 
 type CreateRequest struct {
 	Name      string `json:"name" binding:"required"`
 	IsDefault bool   `json:"is_default"`
-}
-
-type UpdateRequestInput struct {
-	Name      *string `json:"name"`
-	IsDefault *bool   `json:"is_default"`
 }
 
 type UpdateRequestParsed struct {

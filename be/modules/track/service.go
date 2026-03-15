@@ -1,4 +1,4 @@
-package game
+package track
 
 import (
 	"context"
@@ -28,31 +28,30 @@ func (s *Service) GetList(
 	pagination *handler.Pagination,
 	sort *handler.Sort,
 	filters *GetFilters,
-) ([]models.Game, error) {
+) ([]models.Track, error) {
 	rows, err := service.GetEntityList(handler.GetEntityListPayload{
 		Pool:         s.Pool,
 		Context:      ctx,
-		TableName:    "games",
+		TableName:    "tracks",
 		Pagination:   pagination,
 		Sort:         sort,
 		Filters:      helpers.StructToMap[[]string](filters),
 		FilterRules:  s.GetFilters(),
-		SelectFields: []string{"id", "name", "image", "created_at"},
+		SelectFields: []string{"id", "name", "image", "description", "created_at"},
 	})
-
 	if err != nil {
 		return nil, err
 	}
 
 	defer rows.Close()
 
-	result := make([]models.Game, 0)
+	result := make([]models.Track, 0)
 	for rows.Next() {
-		var game models.Game
-		if err := rows.Scan(&game.ID, &game.Name, &game.Image, &game.CreatedAt); err != nil {
+		var track models.Track
+		if err := rows.Scan(&track.ID, &track.Name, &track.Image, &track.Description, &track.CreatedAt); err != nil {
 			return nil, err
 		}
-		result = append(result, game)
+		result = append(result, track)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -66,21 +65,21 @@ func (s *Service) GetTotalCount(ctx context.Context, filters *GetFilters) (int64
 	return service.GetEntityCount(handler.GetEntityCountPayload{
 		Pool:        s.Pool,
 		Context:     ctx,
-		TableName:   "games",
+		TableName:   "tracks",
 		Filters:     helpers.StructToMap[[]string](filters),
 		FilterRules: s.GetFilters(),
 	})
 }
 
-func (s *Service) GetByID(ctx context.Context, id int64) (*models.Game, error) {
-	game := s.Pool.QueryRow(ctx, `
-		SELECT id, name, image, created_at
-		FROM games
+func (s *Service) GetByID(ctx context.Context, id int64) (*models.Track, error) {
+	row := s.Pool.QueryRow(ctx, `
+		SELECT id, name, image, description, created_at
+		FROM tracks
 		WHERE id = $1
 	`, id)
 
-	var result models.Game
-	if err := game.Scan(&result.ID, &result.Name, &result.Image, &result.CreatedAt); err != nil {
+	var result models.Track
+	if err := row.Scan(&result.ID, &result.Name, &result.Image, &result.Description, &result.CreatedAt); err != nil {
 		return nil, err
 	}
 
@@ -89,13 +88,11 @@ func (s *Service) GetByID(ctx context.Context, id int64) (*models.Game, error) {
 
 func (s *Service) Create(ctx context.Context, payload *CreateRequestParsed) (int64, error) {
 	var id int64
-	err := s.Pool.QueryRow(ctx, `
-		INSERT INTO games (name, image)
-		VALUES ($1, $2)
+	if err := s.Pool.QueryRow(ctx, `
+		INSERT INTO tracks (name, image, description)
+		VALUES ($1, $2, $3)
 		RETURNING id
-	`, payload.Name, payload.Image).Scan(&id)
-
-	if err != nil {
+	`, payload.Name, payload.Image, payload.Description).Scan(&id); err != nil {
 		return 0, err
 	}
 
@@ -110,28 +107,27 @@ func (s *Service) UpdateByID(ctx context.Context, id int64, payload *UpdateReque
 		Executor: s.Pool,
 		Context:  ctx,
 		Updates:  updates,
-		Table:    "games",
+		Table:    "tracks",
 	})
 }
 
 func (s *Service) DeleteByID(ctx context.Context, id int64) error {
 	_, err := s.Pool.Exec(ctx, `
-		DELETE FROM games
+		DELETE FROM tracks
 		WHERE id = $1
 	`, id)
 
 	return err
 }
 
-func (s *Service) GetByName(ctx context.Context, name string, idToSkip *int64) (*models.Game, error) {
+func (s *Service) GetByName(ctx context.Context, name string, idToSkip *int64) (*models.Track, error) {
 	query := `
-		SELECT id, name, image, created_at
-		FROM games
+		SELECT id, name, image, description, created_at
+		FROM tracks
 		WHERE name = $1
 	`
 
 	args := []any{name}
-
 	if idToSkip != nil {
 		query += " AND id != $2"
 		args = append(args, *idToSkip)
@@ -139,10 +135,8 @@ func (s *Service) GetByName(ctx context.Context, name string, idToSkip *int64) (
 
 	row := s.Pool.QueryRow(ctx, query, args...)
 
-	var result models.Game
-
-	err := row.Scan(&result.ID, &result.Name, &result.Image, &result.CreatedAt)
-	if err != nil {
+	var result models.Track
+	if err := row.Scan(&result.ID, &result.Name, &result.Image, &result.Description, &result.CreatedAt); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}

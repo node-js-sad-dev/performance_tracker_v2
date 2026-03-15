@@ -7,6 +7,7 @@ import (
 	"performance_tracker_v2_be/core/handler"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -41,7 +42,7 @@ func NotFoundErrorResponse(entityName string) *handler.ActionFuncResponse {
 }
 
 func DbErrorResponse(err error) *handler.ActionFuncResponse {
-	if errors.Is(err, sql.ErrNoRows) {
+	if errors.Is(err, sql.ErrNoRows) || errors.Is(err, pgx.ErrNoRows) {
 		return CommonErrorResponse(404, "record not found")
 	}
 
@@ -53,6 +54,6 @@ func DbErrorResponse(err error) *handler.ActionFuncResponse {
 		}
 	}
 
-	slog.Error("Database error: %v", err)
+	slog.Error("Database error", "error", err)
 	return CommonErrorResponse(500, "Database error")
 }

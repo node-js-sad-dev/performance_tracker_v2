@@ -15,6 +15,10 @@ func Router(config *config.Config, pool *pgxpool.Pool, router *gin.RouterGroup) 
 
 	lapGroup := router.Group("/lap")
 	{
+		lapGroup.GET("/:id", handler.Handler(config, controller.GetByID))
+		lapGroup.PATCH("/:id", handler.Handler(config, controller.UpdateByID))
+		lapGroup.DELETE("/:id", handler.Handler(config, controller.DeleteByID))
 		lapGroup.GET("", handler.Handler(config, controller.GetList))
+		lapGroup.POST("", handler.Handler(config, controller.Create))
 	}
 }

@@ -7,6 +7,8 @@ import (
 	"performance_tracker_v2_be/modules/game"
 	"performance_tracker_v2_be/modules/lap"
 	"performance_tracker_v2_be/modules/pedals"
+	"performance_tracker_v2_be/modules/track"
+	"performance_tracker_v2_be/modules/wheel"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,4 +26,6 @@ func RootRouter(config *config.Config, pool *pgxpool.Pool, app *gin.Engine) {
 	lap.Router(config, pool, rootRouterGroup)
 	game.Router(config, pool, rootRouterGroup)
 	pedals.Router(config, pool, rootRouterGroup)
+	track.Router(config, pool, rootRouterGroup)
+	wheel.Router(config, pool, rootRouterGroup)
 }

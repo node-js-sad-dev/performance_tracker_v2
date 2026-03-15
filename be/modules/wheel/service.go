@@ -1,13 +1,11 @@
-package pedals
+package wheel
 
 import (
 	"context"
-	"errors"
 	"performance_tracker_v2_be/core/handler"
 	"performance_tracker_v2_be/core/service"
 	"performance_tracker_v2_be/db/main-db/models"
 	"performance_tracker_v2_be/helpers"
-	"strconv"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,11 +22,16 @@ func (s *Service) GetFilters() map[string]handler.FilterRule {
 	}
 }
 
-func (s *Service) GetList(ctx context.Context, pagination *handler.Pagination, sort *handler.Sort, filters *GetFilters) ([]models.Pedals, error) {
+func (s *Service) GetList(
+	ctx context.Context,
+	pagination *handler.Pagination,
+	sort *handler.Sort,
+	filters *GetFilters,
+) ([]models.Wheel, error) {
 	rows, err := service.GetEntityList(handler.GetEntityListPayload{
 		Pool:        s.Pool,
 		Context:     ctx,
-		TableName:   "pedals",
+		TableName:   "wheels",
 		Pagination:  pagination,
 		Sort:        sort,
 		Filters:     helpers.StructToMap[[]string](filters),
@@ -37,20 +40,23 @@ func (s *Service) GetList(ctx context.Context, pagination *handler.Pagination, s
 			"id", "name", "is_default", "created_at",
 		},
 	})
-
 	if err != nil {
 		return nil, err
 	}
 
 	defer rows.Close()
 
-	result := make([]models.Pedals, 0)
+	result := make([]models.Wheel, 0)
 	for rows.Next() {
-		var pedals models.Pedals
-		if err := rows.Scan(&pedals.ID, &pedals.Name, &pedals.IsDefault, &pedals.CreatedAt); err != nil {
+		var wheel models.Wheel
+		if err := rows.Scan(&wheel.ID, &wheel.Name, &wheel.IsDefault, &wheel.CreatedAt); err != nil {
 			return nil, err
 		}
-		result = append(result, pedals)
+		result = append(result, wheel)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return result, nil
@@ -60,17 +66,21 @@ func (s *Service) GetTotalCount(ctx context.Context, filters *GetFilters) (int64
 	return service.GetEntityCount(handler.GetEntityCountPayload{
 		Pool:        s.Pool,
 		Context:     ctx,
-		TableName:   "pedals",
+		TableName:   "wheels",
 		Filters:     helpers.StructToMap[[]string](filters),
 		FilterRules: s.GetFilters(),
 	})
 }
 
-func (s *Service) GetByID(ctx context.Context, id int64) (*models.Pedals, error) {
-	pedals := s.Pool.QueryRow(ctx, "select id, name, is_default, created_at from pedals where id = $1", id)
+func (s *Service) GetByID(ctx context.Context, id int64) (*models.Wheel, error) {
+	row := s.Pool.QueryRow(ctx, `
+		SELECT id, name, is_default, created_at
+		FROM wheels
+		WHERE id = $1
+	`, id)
 
-	var result models.Pedals
-	if err := pedals.Scan(&result.ID, &result.Name, &result.IsDefault, &result.CreatedAt); err != nil {
+	var result models.Wheel
+	if err := row.Scan(&result.ID, &result.Name, &result.IsDefault, &result.CreatedAt); err != nil {
 		return nil, err
 	}
 
@@ -82,52 +92,45 @@ func (s *Service) Create(ctx context.Context, payload *CreateRequest) (int64, er
 
 	err := pgx.BeginFunc(ctx, s.Pool, func(tx pgx.Tx) error {
 		if payload.IsDefault {
-			_, err := tx.Exec(ctx, `
-				UPDATE pedals
+			if _, err := tx.Exec(ctx, `
+				UPDATE wheels
 				SET is_default = FALSE
 				WHERE is_default = TRUE
-			`)
-
-			if err != nil {
+			`); err != nil {
 				return err
 			}
 		}
 
 		return tx.QueryRow(ctx, `
-			INSERT INTO pedals (name, is_default)
-			VALUES ($1, $2) returning id
+			INSERT INTO wheels (name, is_default)
+			VALUES ($1, $2)
+			RETURNING id
 		`, payload.Name, payload.IsDefault).Scan(&id)
 	})
+	if err != nil {
+		return 0, err
+	}
 
-	return id, err
+	return id, nil
 }
 
 func (s *Service) UpdateByID(ctx context.Context, id int64, payload *UpdateRequestParsed) error {
 	return pgx.BeginFunc(ctx, s.Pool, func(tx pgx.Tx) error {
-		var entityFromDb models.Pedals
-
-		err := tx.QueryRow(ctx, `
+		var entityFromDB models.Wheel
+		if err := tx.QueryRow(ctx, `
 			SELECT id, name, is_default, created_at
-			FROM pedals
+			FROM wheels
 			WHERE id = $1
-		`, id).Scan(&entityFromDb.ID, &entityFromDb.Name, &entityFromDb.IsDefault, &entityFromDb.CreatedAt)
-
-		if err != nil {
+		`, id).Scan(&entityFromDB.ID, &entityFromDB.Name, &entityFromDB.IsDefault, &entityFromDB.CreatedAt); err != nil {
 			return err
 		}
 
-		if &entityFromDb == nil {
-			return errors.New("pedals not found with id: " + strconv.FormatInt(id, 10))
-		}
-
-		if payload.IsDefault.GetIsSet() && payload.IsDefault.GetValue() == true && entityFromDb.IsDefault == false {
-			_, err := tx.Exec(ctx, `
-				UPDATE pedals
+		if payload.IsDefault.GetIsSet() && !payload.IsDefault.GetIsNull() && payload.IsDefault.GetValue() == true && !entityFromDB.IsDefault {
+			if _, err := tx.Exec(ctx, `
+				UPDATE wheels
 				SET is_default = FALSE
 				WHERE is_default = TRUE AND id != $1
-			`, id)
-
-			if err != nil {
+			`, id); err != nil {
 				return err
 			}
 		}
@@ -139,14 +142,15 @@ func (s *Service) UpdateByID(ctx context.Context, id int64, payload *UpdateReque
 			Executor: tx,
 			Context:  ctx,
 			Updates:  updates,
-			Table:    "pedals",
+			Table:    "wheels",
 		})
 	})
 }
 
 func (s *Service) DeleteByID(ctx context.Context, id int64) error {
 	_, err := s.Pool.Exec(ctx, `
-		delete from pedals where id = $1
+		DELETE FROM wheels
+		WHERE id = $1
 	`, id)
 
 	return err
